@@ -78,4 +78,9 @@ public class ArrayReader {
         return list;
     }
 
+    public long readLong() {
+        return (mArray[readOffset++] & 0xffL) << 56 | (mArray[readOffset++] & 0xffL) << 48 | (mArray[readOffset++] & 0xffL) << 40
+                | (mArray[readOffset++] & 0xffL) << 32 | (mArray[readOffset++] & 0xffL) << 24
+                | (mArray[readOffset++] & 0xffL) << 16 | (mArray[readOffset++] & 0xffL) << 8 | (mArray[readOffset++] & 0xffL);
+    }
 }

@@ -14,7 +14,7 @@ public class ArrayWriter {
     public ArrayWriter() {
     }
 
-    public void writeByte(byte value){
+    public void writeByte(byte value) {
         mByteArray.add(value);
     }
 
@@ -55,5 +55,7 @@ public class ArrayWriter {
     }
 
 
-
+    public void writeLong(long value) {
+        add(Serializer.getBytes(value));
+    }
 }

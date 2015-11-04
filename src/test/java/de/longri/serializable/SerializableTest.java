@@ -83,5 +83,19 @@ public class SerializableTest {
         assertTrue(writer.getArray().length == 7);
     }
 
+    @Test
+    public void testLong() throws Exception {
+
+        TestObjectLong obj = new TestObjectLong(System.currentTimeMillis());
+        TestObjectLong obj2 = new TestObjectLong(0);
+
+        ArrayWriter writer = new ArrayWriter();
+        obj.serialize(writer);
+        obj2.deserialize(new ArrayReader(writer.getArray()));
+
+        assertEquals(obj, obj2);
+        assertTrue(writer.getArray().length == 8);
+    }
+
 
 }
