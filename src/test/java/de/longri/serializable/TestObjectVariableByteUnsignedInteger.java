@@ -8,23 +8,14 @@ public class TestObjectVariableByteUnsignedInteger extends Serializable {
     protected int IntegerValue1;
     protected int IntegerValue2;
 
-
     @Override
-    public byte[] serialize() {
-
-        ArrayWriter writer = new ArrayWriter();
-
+    public void serialize(ArrayWriter writer) {
         writer.writeVariableUnsignedInt(IntegerValue1);
         writer.writeVariableUnsignedInt(IntegerValue2);
-
-
-        return writer.getArray();
     }
 
     @Override
-    public void deserialize(byte[] array) {
-
-        ArrayReader reader = new ArrayReader(array);
+    public void deserialize(ArrayReader reader) {
         IntegerValue1 = reader.readVariableUnsignedInt();
         IntegerValue2 = reader.readVariableUnsignedInt();
     }

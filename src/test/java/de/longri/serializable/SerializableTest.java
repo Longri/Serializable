@@ -19,10 +19,13 @@ public class SerializableTest {
 
         TestObjectInteger obj2 = new TestObjectInteger();
 
-        obj2.deserialize(obj.serialize());
+
+        ArrayWriter writer = new ArrayWriter();
+        obj.serialize(writer);
+        obj2.deserialize(new ArrayReader(writer.getArray()));
 
         assertEquals(obj, obj2);
-        assertTrue(obj.serialize().length == 8);
+        assertTrue(writer.getArray().length == 8);
     }
 
     @Test
@@ -34,10 +37,12 @@ public class SerializableTest {
 
         TestObjectVariableByteSignedInteger obj2 = new TestObjectVariableByteSignedInteger();
 
-        obj2.deserialize(obj.serialize());
+        ArrayWriter writer = new ArrayWriter();
+        obj.serialize(writer);
+        obj2.deserialize(new ArrayReader(writer.getArray()));
 
         assertEquals(obj, obj2);
-        assertTrue(obj.serialize().length == 7);
+        assertTrue(writer.getArray().length == 7);
 
     }
 
@@ -50,10 +55,12 @@ public class SerializableTest {
 
         TestObjectVariableByteUnsignedInteger obj2 = new TestObjectVariableByteUnsignedInteger();
 
-        obj2.deserialize(obj.serialize());
+        ArrayWriter writer = new ArrayWriter();
+        obj.serialize(writer);
+        obj2.deserialize(new ArrayReader(writer.getArray()));
 
         assertEquals(obj, obj2);
-        assertTrue(obj.serialize().length == 6);
+        assertTrue(writer.getArray().length == 6);
 
     }
 
@@ -68,10 +75,12 @@ public class SerializableTest {
 
         TestObject obj2 = new TestObject();
 
-        obj2.deserialize(obj.serialize());
+        ArrayWriter writer = new ArrayWriter();
+        obj.serialize(writer);
+        obj2.deserialize(new ArrayReader(writer.getArray()));
 
         assertEquals(obj, obj2);
-        assertTrue(obj.serialize().length == 9);
+        assertTrue(writer.getArray().length == 7);
     }
 
 

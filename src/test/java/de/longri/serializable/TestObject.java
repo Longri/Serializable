@@ -13,9 +13,8 @@ public class TestObject extends Serializable {
 
 
     @Override
-    public byte[] serialize() {
+    public void serialize(ArrayWriter writer) {
 
-        ArrayWriter writer = new ArrayWriter();
 
         BooleanStore booleanStore = new BooleanStore();
         booleanStore.store(BooleanStore.Bitmask.BIT_0, bool1);
@@ -23,25 +22,21 @@ public class TestObject extends Serializable {
         booleanStore.store(BooleanStore.Bitmask.BIT_2, bool3);
 
         writer.writeByte(booleanStore);
-        writer.writeInt(IntegerValue1);
-        writer.writeInt(IntegerValue2);
+        writer.writeVariableUnsignedInt(IntegerValue1);
+        writer.writeVariableUnsignedInt(IntegerValue2);
 
-        return writer.getArray();
     }
 
     @Override
-    public void deserialize(byte[] array) {
-
-        ArrayReader reader = new ArrayReader(array);
-
+    public void deserialize(ArrayReader reader) {
         BooleanStore booleanStore = new BooleanStore(reader.readByte());
 
         bool1 = booleanStore.get(BooleanStore.Bitmask.BIT_0);
         bool2 = booleanStore.get(BooleanStore.Bitmask.BIT_1);
         bool3 = booleanStore.get(BooleanStore.Bitmask.BIT_2);
 
-        IntegerValue1 = reader.readInt();
-        IntegerValue2 = reader.readInt();
+        IntegerValue1 = reader.readVariableUnsignedInt();
+        IntegerValue2 = reader.readVariableUnsignedInt();
     }
 
     @Override
@@ -59,4 +54,31 @@ public class TestObject extends Serializable {
         }
         return false;
     }
+
+    public String toString() {
+
+        StringBuilder stringBuilder = new StringBuilder();
+
+        stringBuilder.append(IntegerValue1);
+        stringBuilder.append(" / ");
+        stringBuilder.append(IntegerValue2);
+        stringBuilder.append(" / ");
+        if (bool3) {
+            stringBuilder.append('1');
+        } else {
+            stringBuilder.append('0');
+        }
+        if (bool2) {
+            stringBuilder.append('1');
+        } else {
+            stringBuilder.append('0');
+        }
+        if (bool1) {
+            stringBuilder.append('1');
+        } else {
+            stringBuilder.append('0');
+        }
+        return stringBuilder.toString();
+    }
+
 }

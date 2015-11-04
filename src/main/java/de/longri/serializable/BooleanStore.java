@@ -18,7 +18,7 @@ public class BooleanStore {
 
     }
 
-    private byte mValue;
+     byte mValue;
 
     public BooleanStore(byte b) {
         mValue = b;
@@ -45,6 +45,16 @@ public class BooleanStore {
     public boolean get(Bitmask bit) {
         return (mValue & bit.value) == bit.value;
     }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other instanceof BooleanStore) {
+            BooleanStore obj = (BooleanStore) other;
+            if (obj.mValue == ((BooleanStore) other).mValue) return true;
+        }
+        return false;
+    }
+
 
     public String toString() {
         byte[] masks = {-128, 64, 32, 16, 8, 4, 2, 1};

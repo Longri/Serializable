@@ -1,5 +1,7 @@
 package de.longri.serializable;
 
+import java.util.ArrayList;
+
 /**
  * Created by Longri on 03.11.15.
  */
@@ -54,4 +56,26 @@ public class ArrayReader {
         // positive
         return variableByteDecode | ((this.mArray[this.readOffset++] & 0x3f) << variableByteShift);
     }
+
+    public <T extends Serializable> ArrayList<T> readList(Class<T> tClass) {
+        ArrayList<T> list = new ArrayList<T>();
+
+        int size = readVariableUnsignedInt();
+
+        for (int i = 0; i < size; i++) {
+
+            try {
+                T t = tClass.newInstance();
+                t.deserialize(this);
+                list.add(t);
+            } catch (InstantiationException e) {
+                e.printStackTrace();
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+
+        }
+        return list;
+    }
+
 }

@@ -10,21 +10,13 @@ public class TestObjectInteger extends Serializable {
 
 
     @Override
-    public byte[] serialize() {
-
-        ArrayWriter writer = new ArrayWriter();
-
+    public void serialize(ArrayWriter writer) {
         writer.writeInt(IntegerValue1);
         writer.writeInt(IntegerValue2);
-
-
-        return writer.getArray();
     }
 
     @Override
-    public void deserialize(byte[] array) {
-
-        ArrayReader reader = new ArrayReader(array);
+    public void deserialize(ArrayReader reader) {
         IntegerValue1 = reader.readInt();
         IntegerValue2 = reader.readInt();
     }
