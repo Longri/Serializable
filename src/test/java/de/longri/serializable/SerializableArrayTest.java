@@ -26,7 +26,7 @@ public class SerializableArrayTest {
         serializeList.add(o2);
         serializeList.add(o3);
 
-        ArrayWriter writer = new ArrayWriter();
+        NormalStore writer = new NormalStore();
 
         serializeList.serialize(writer);
 
@@ -34,7 +34,7 @@ public class SerializableArrayTest {
 
         SerializableArrayList<ListObject> deserializeList = new SerializableArrayList<ListObject>(ListObject.class);
 
-        ArrayReader reader = new ArrayReader(byteArray);
+        NormalStore reader = new NormalStore(byteArray);
         deserializeList.deserialize(reader);
 
         assertEquals(o1, deserializeList.get(0));
@@ -72,7 +72,7 @@ public class SerializableArrayTest {
         serializeList.add(obj2);
         serializeList.add(obj3);
 
-        ArrayWriter writer = new ArrayWriter();
+        NormalStore writer = new NormalStore();
 
         serializeList.serialize(writer);
 
@@ -80,7 +80,7 @@ public class SerializableArrayTest {
 
         SerializableArrayList<TestObject> deserializeList = new SerializableArrayList<TestObject>(TestObject.class);
 
-        ArrayReader reader = new ArrayReader(byteArray);
+        NormalStore reader = new NormalStore(byteArray);
         deserializeList.deserialize(reader);
 
         assertEquals(obj, deserializeList.get(0));

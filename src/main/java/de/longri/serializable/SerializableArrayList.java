@@ -17,9 +17,9 @@ public class SerializableArrayList<T extends Serializable> extends Serializable 
 
 
     @Override
-    public void serialize(ArrayWriter writer) {
+    public void serialize(StoreBase writer) {
 
-        writer.writeVariableUnsignedInt(list.size());
+        writer.write(list.size());
 
         ArrayList<Byte> byteArrayList = new ArrayList<Byte>();
 
@@ -29,7 +29,7 @@ public class SerializableArrayList<T extends Serializable> extends Serializable 
     }
 
     @Override
-    public void deserialize(ArrayReader reader) {
+    public void deserialize(StoreBase reader) {
         list = reader.readList(tClass);
     }
 

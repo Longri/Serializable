@@ -13,12 +13,12 @@ public class TestObjectLong extends Serializable {
 
 
     @Override
-    public void serialize(ArrayWriter writer) {
-        writer.writeLong(LongValue1);
+    public void serialize(StoreBase writer) {
+        writer.write(LongValue1);
     }
 
     @Override
-    public void deserialize(ArrayReader reader) {
+    public void deserialize(StoreBase reader) {
         LongValue1 = reader.readLong();
     }
 

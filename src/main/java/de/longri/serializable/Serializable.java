@@ -12,13 +12,13 @@ public abstract class Serializable {
 
     }
 
-    public Serializable(ArrayReader reader) {
+    public Serializable(StoreBase reader) {
         deserialize(reader);
     }
 
-    public abstract void serialize(ArrayWriter writer);
+    public abstract void serialize(StoreBase writer);
 
-    public abstract void deserialize(ArrayReader reader);
+    public abstract void deserialize(StoreBase reader);
 
 
 }

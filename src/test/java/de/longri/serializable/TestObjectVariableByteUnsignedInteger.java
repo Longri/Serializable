@@ -9,15 +9,15 @@ public class TestObjectVariableByteUnsignedInteger extends Serializable {
     protected int IntegerValue2;
 
     @Override
-    public void serialize(ArrayWriter writer) {
-        writer.writeVariableUnsignedInt(IntegerValue1);
-        writer.writeVariableUnsignedInt(IntegerValue2);
+    public void serialize(StoreBase writer) {
+        writer.write(IntegerValue1);
+        writer.write(IntegerValue2);
     }
 
     @Override
-    public void deserialize(ArrayReader reader) {
-        IntegerValue1 = reader.readVariableUnsignedInt();
-        IntegerValue2 = reader.readVariableUnsignedInt();
+    public void deserialize(StoreBase reader) {
+        IntegerValue1 = reader.readInt();
+        IntegerValue2 = reader.readInt();
     }
 
     @Override

@@ -13,7 +13,7 @@ public class TestObject extends Serializable {
 
 
     @Override
-    public void serialize(ArrayWriter writer) {
+    public void serialize(StoreBase writer) {
 
 
         BooleanStore booleanStore = new BooleanStore();
@@ -21,22 +21,22 @@ public class TestObject extends Serializable {
         booleanStore.store(BooleanStore.Bitmask.BIT_1, bool2);
         booleanStore.store(BooleanStore.Bitmask.BIT_2, bool3);
 
-        writer.writeByte(booleanStore);
-        writer.writeVariableUnsignedInt(IntegerValue1);
-        writer.writeVariableUnsignedInt(IntegerValue2);
+        writer.write(booleanStore);
+        writer.write(IntegerValue1);
+        writer.write(IntegerValue2);
 
     }
 
     @Override
-    public void deserialize(ArrayReader reader) {
+    public void deserialize(StoreBase reader) {
         BooleanStore booleanStore = new BooleanStore(reader.readByte());
 
         bool1 = booleanStore.get(BooleanStore.Bitmask.BIT_0);
         bool2 = booleanStore.get(BooleanStore.Bitmask.BIT_1);
         bool3 = booleanStore.get(BooleanStore.Bitmask.BIT_2);
 
-        IntegerValue1 = reader.readVariableUnsignedInt();
-        IntegerValue2 = reader.readVariableUnsignedInt();
+        IntegerValue1 = reader.readInt();
+        IntegerValue2 = reader.readInt();
     }
 
     @Override

@@ -10,15 +10,15 @@ public class TestObjectVariableByteSignedInteger extends Serializable {
 
 
     @Override
-    public void serialize(ArrayWriter writer) {
-        writer.writeVariableSignedInt(IntegerValue1);
-        writer.writeVariableSignedInt(IntegerValue2);
+    public void serialize(StoreBase writer) {
+        writer.write(IntegerValue1);
+        writer.write(IntegerValue2);
     }
 
     @Override
-    public void deserialize(ArrayReader reader) {
-        IntegerValue1 = reader.readVariableSignedInt();
-        IntegerValue2 = reader.readVariableSignedInt();
+    public void deserialize(StoreBase reader) {
+        IntegerValue1 = reader.readInt();
+        IntegerValue2 = reader.readInt();
     }
 
     @Override

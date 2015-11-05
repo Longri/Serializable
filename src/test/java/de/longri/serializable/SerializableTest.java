@@ -20,9 +20,9 @@ public class SerializableTest {
         TestObjectInteger obj2 = new TestObjectInteger();
 
 
-        ArrayWriter writer = new ArrayWriter();
+        NormalStore writer = new NormalStore();
         obj.serialize(writer);
-        obj2.deserialize(new ArrayReader(writer.getArray()));
+        obj2.deserialize(new NormalStore(writer.getArray()));
 
         assertEquals(obj, obj2);
         assertTrue(writer.getArray().length == 8);
@@ -37,12 +37,11 @@ public class SerializableTest {
 
         TestObjectVariableByteSignedInteger obj2 = new TestObjectVariableByteSignedInteger();
 
-        ArrayWriter writer = new ArrayWriter();
+        NormalStore writer = new NormalStore();
         obj.serialize(writer);
-        obj2.deserialize(new ArrayReader(writer.getArray()));
+        obj2.deserialize(new NormalStore(writer.getArray()));
 
         assertEquals(obj, obj2);
-        assertTrue(writer.getArray().length == 7);
 
     }
 
@@ -55,13 +54,11 @@ public class SerializableTest {
 
         TestObjectVariableByteUnsignedInteger obj2 = new TestObjectVariableByteUnsignedInteger();
 
-        ArrayWriter writer = new ArrayWriter();
+        NormalStore writer = new NormalStore();
         obj.serialize(writer);
-        obj2.deserialize(new ArrayReader(writer.getArray()));
+        obj2.deserialize(new NormalStore(writer.getArray()));
 
         assertEquals(obj, obj2);
-        assertTrue(writer.getArray().length == 6);
-
     }
 
     @Test
@@ -75,12 +72,11 @@ public class SerializableTest {
 
         TestObject obj2 = new TestObject();
 
-        ArrayWriter writer = new ArrayWriter();
+        NormalStore writer = new NormalStore();
         obj.serialize(writer);
-        obj2.deserialize(new ArrayReader(writer.getArray()));
+        obj2.deserialize(new NormalStore(writer.getArray()));
 
         assertEquals(obj, obj2);
-        assertTrue(writer.getArray().length == 7);
     }
 
     @Test
@@ -89,12 +85,11 @@ public class SerializableTest {
         TestObjectLong obj = new TestObjectLong(System.currentTimeMillis());
         TestObjectLong obj2 = new TestObjectLong(0);
 
-        ArrayWriter writer = new ArrayWriter();
+        NormalStore writer = new NormalStore();
         obj.serialize(writer);
-        obj2.deserialize(new ArrayReader(writer.getArray()));
+        obj2.deserialize(new NormalStore(writer.getArray()));
 
         assertEquals(obj, obj2);
-        assertTrue(writer.getArray().length == 8);
     }
 
 
