@@ -103,6 +103,8 @@ public class NormalStore extends StoreBase {
                 e.printStackTrace();
             } catch (IllegalAccessException e) {
                 e.printStackTrace();
+            } catch (NotImplementedException e) {
+                e.printStackTrace();
             }
 
         }

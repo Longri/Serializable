@@ -27,27 +27,27 @@ public abstract class StoreBase {
 
 /*---------- abstract method's --------------*/
 
-    protected abstract void _write(byte b);
+    protected abstract void _write(byte b)throws NotImplementedException;
 
-    protected abstract void _write(short s);
+    protected abstract void _write(short s) throws NotImplementedException;
 
-    protected abstract void _write(int i);
+    protected abstract void _write(int i)throws NotImplementedException;
 
-    protected abstract void _write(long l);
+    protected abstract void _write(long l)throws NotImplementedException;
 
-    protected abstract void _write(String s);
+    protected abstract void _write(String s)throws NotImplementedException;
 
-    public abstract byte readByte();
+    public abstract byte readByte()throws NotImplementedException;
 
-    public abstract short readShort();
+    public abstract short readShort()throws NotImplementedException;
 
-    public abstract int readInt();
+    public abstract int readInt()throws NotImplementedException;
 
-    public abstract long readLong();
+    public abstract long readLong()throws NotImplementedException;
 
-    public abstract String readString();
+    public abstract String readString()throws NotImplementedException;
 
-    public abstract <T extends Serializable> ArrayList<T> readList(Class<T> tClass);
+    public abstract <T extends Serializable> ArrayList<T> readList(Class<T> tClass) throws NotImplementedException;
 
 
 /*---------- public method's --------------*/
@@ -60,37 +60,37 @@ public abstract class StoreBase {
         return size <= 0;
     }
 
-    public final void write(byte b) {
+    public final void write(byte b) throws NotImplementedException{
         ensureCapacity(4);
         _write(b);
     }
 
-    public final void write(BooleanStore b) {
+    public final void write(BooleanStore b) throws NotImplementedException{
         ensureCapacity(4);
         _write(b.getByte());
     }
 
-    public final void write(short s) {
+    public final void write(short s)throws NotImplementedException {
         ensureCapacity(8);
         _write(s);
     }
 
-    public final void write(int i) {
+    public final void write(int i) throws NotImplementedException{
         ensureCapacity(16);
         _write(i);
     }
 
-    public final void write(long l) {
+    public final void write(long l) throws NotImplementedException{
         ensureCapacity(32);
         _write(l);
     }
 
-    public final void write(String s) {
+    public final void write(String s) throws NotImplementedException{
         ensureCapacity(s.length() * 2);
         _write(s);
     }
 
-    public final byte[] getArray() {
+    public final byte[] getArray() throws NotImplementedException{
         trimToSize();
         return buffer;
     }

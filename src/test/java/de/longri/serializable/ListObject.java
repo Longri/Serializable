@@ -9,12 +9,12 @@ public class ListObject extends Serializable {
 
 
     @Override
-    public void serialize(StoreBase writer) {
+    public void serialize(StoreBase writer) throws NotImplementedException {
         writer.write(booleanStore);
     }
 
     @Override
-    public void deserialize(StoreBase reader) {
+    public void deserialize(StoreBase reader) throws NotImplementedException {
         BooleanStore Store = new BooleanStore(reader.readByte());
 
         booleanStore.store(BooleanStore.Bitmask.BIT_0, Store.get(BooleanStore.Bitmask.BIT_0));

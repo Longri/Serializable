@@ -10,13 +10,13 @@ public class TestObjectInteger extends Serializable {
 
 
     @Override
-    public void serialize(StoreBase writer) {
+    public void serialize(StoreBase writer) throws NotImplementedException {
         writer.write(IntegerValue1);
         writer.write(IntegerValue2);
     }
 
     @Override
-    public void deserialize(StoreBase reader) {
+    public void deserialize(StoreBase reader) throws NotImplementedException {
         IntegerValue1 = reader.readInt();
         IntegerValue2 = reader.readInt();
     }

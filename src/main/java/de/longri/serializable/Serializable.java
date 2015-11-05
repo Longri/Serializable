@@ -12,13 +12,13 @@ public abstract class Serializable {
 
     }
 
-    public Serializable(StoreBase reader) {
+    public Serializable(StoreBase reader) throws NotImplementedException {
         deserialize(reader);
     }
 
-    public abstract void serialize(StoreBase writer);
+    public abstract void serialize(StoreBase writer) throws NotImplementedException;
 
-    public abstract void deserialize(StoreBase reader);
+    public abstract void deserialize(StoreBase reader) throws NotImplementedException;
 
 
 }

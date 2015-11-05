@@ -13,7 +13,7 @@ public class TestObject extends Serializable {
 
 
     @Override
-    public void serialize(StoreBase writer) {
+    public void serialize(StoreBase writer) throws NotImplementedException {
 
 
         BooleanStore booleanStore = new BooleanStore();
@@ -28,7 +28,7 @@ public class TestObject extends Serializable {
     }
 
     @Override
-    public void deserialize(StoreBase reader) {
+    public void deserialize(StoreBase reader) throws NotImplementedException {
         BooleanStore booleanStore = new BooleanStore(reader.readByte());
 
         bool1 = booleanStore.get(BooleanStore.Bitmask.BIT_0);

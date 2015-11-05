@@ -19,17 +19,22 @@ public class SerializableArrayList<T extends Serializable> extends Serializable 
     @Override
     public void serialize(StoreBase writer) {
 
-        writer.write(list.size());
+        try {
+            writer.write(list.size());
+            ArrayList<Byte> byteArrayList = new ArrayList<Byte>();
 
-        ArrayList<Byte> byteArrayList = new ArrayList<Byte>();
-
-        for (T t : list) {
-            t.serialize(writer);
+            for (T t : list) {
+                t.serialize(writer);
+            }
+        } catch (NotImplementedException e) {
+            e.printStackTrace();
         }
+
+
     }
 
     @Override
-    public void deserialize(StoreBase reader) {
+    public void deserialize(StoreBase reader) throws NotImplementedException {
         list = reader.readList(tClass);
     }
 
