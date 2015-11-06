@@ -9,13 +9,18 @@ public class ToBitString {
 
     private short mValue;
 
+    ToBitString(byte[] b) {
+        value = b;
+    }
+
     ToBitString(byte b) {
         value[3] = b;
     }
 
     ToBitString(short s) {
-        value[3] = (byte) (s >> 8);
-        value[3] = (byte) (8);
+        byte[] b = new byte[]{(byte) (s >> 8), (byte) s};
+        value[2] = b[0];
+        value[3] = b[1];
     }
 
 
@@ -35,7 +40,7 @@ public class ToBitString {
                     builder.append('0');
                 }
             }
-            if (writtenByte++ < 4) builder.append(" | ");
+            if (writtenByte++ < value.length - 1) builder.append(" | ");
         }
         return builder.toString();
     }

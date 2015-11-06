@@ -8,7 +8,28 @@ import static org.junit.Assert.assertTrue;
 /**
  * Created by Longri on 03.11.15.
  */
-public class SerializableTest {
+public class NormalStoreTest {
+
+
+    @Test
+    public void testByteObject() throws Exception {
+
+        TestObjectByte obj = new TestObjectByte();
+        obj.byteValue1 = 26;
+        obj.byteValue2 = 117;
+        obj.byteValue3 = (byte) 200;
+
+        TestObjectByte obj2 = new TestObjectByte();
+
+
+        NormalStore writer = new NormalStore();
+        obj.serialize(writer);
+        obj2.deserialize(new NormalStore(writer.getArray()));
+
+        assertEquals(obj, obj2);
+
+    }
+
 
     @Test
     public void testIntegerObject() throws Exception {
