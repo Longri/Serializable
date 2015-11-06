@@ -30,6 +30,25 @@ public class NormalStoreTest {
 
     }
 
+    @Test
+    public void testShortObject() throws Exception {
+
+        TestObjectShort obj = new TestObjectShort();
+        obj.shortValue1 = 260;
+        obj.shortValue2 = 1170;
+        obj.shortValue3 = 2000;
+
+        TestObjectShort obj2 = new TestObjectShort();
+
+
+        NormalStore writer = new NormalStore();
+        obj.serialize(writer);
+        obj2.deserialize(new NormalStore(writer.getArray()));
+
+        assertEquals(obj, obj2);
+
+    }
+
 
     @Test
     public void testIntegerObject() throws Exception {
