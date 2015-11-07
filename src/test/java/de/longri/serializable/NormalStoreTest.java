@@ -3,7 +3,6 @@ package de.longri.serializable;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 /**
  * Created by Longri on 03.11.15.
@@ -21,6 +20,7 @@ public class NormalStoreTest {
 
         TestObjectByte obj2 = new TestObjectByte();
 
+        //TODO test with minus values and Byte.MIN_VALUE / Byte.MAX_VALUE
 
         NormalStore writer = new NormalStore();
         obj.serialize(writer);
@@ -40,6 +40,7 @@ public class NormalStoreTest {
 
         TestObjectShort obj2 = new TestObjectShort();
 
+        //TODO test with minus values and Short.MIN_VALUE / Short.MAX_VALUE
 
         NormalStore writer = new NormalStore();
         obj.serialize(writer);
@@ -54,18 +55,20 @@ public class NormalStoreTest {
     public void testIntegerObject() throws Exception {
 
         TestObjectInteger obj = new TestObjectInteger();
-        obj.IntegerValue1 = 16310;
-        obj.IntegerValue2 = 3242341;
+//        obj.IntegerValue1 = 16310;
+//        obj.IntegerValue2 = 3242341;
+        obj.IntegerValue3 = 31243467;
 
         TestObjectInteger obj2 = new TestObjectInteger();
 
+        //TODO test with minus values and Integer.MIN_VALUE / Integer.MAX_VALUE
 
         NormalStore writer = new NormalStore();
         obj.serialize(writer);
         obj2.deserialize(new NormalStore(writer.getArray()));
 
         assertEquals(obj, obj2);
-        assertTrue(writer.getArray().length == 8);
+
     }
 
 

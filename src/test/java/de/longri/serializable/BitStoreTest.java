@@ -3,7 +3,6 @@ package de.longri.serializable;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 /**
  * Created by Longri on 03.11.15.
@@ -19,8 +18,9 @@ public class BitStoreTest {
         obj.byteValue2 = 117;
         obj.byteValue3 = (byte) 200;
 
-        TestObjectByte obj2 = new TestObjectByte();
+        //TODO test with minus values and Byte.MIN_VALUE / Byte.MAX_VALUE
 
+        TestObjectByte obj2 = new TestObjectByte();
 
         BitStore writer = new BitStore();
         obj.serialize(writer);
@@ -39,6 +39,8 @@ public class BitStoreTest {
         obj.shortValue2 = 1170;
         obj.shortValue3 = 2000;
 
+//TODO test with minus values and Short.MIN_VALUE / Short.MAX_VALUE
+
         TestObjectShort obj2 = new TestObjectShort();
 
 
@@ -51,23 +53,23 @@ public class BitStoreTest {
     }
 
 
-
     @Test
     public void testIntegerObject() throws Exception {
 
         TestObjectInteger obj = new TestObjectInteger();
-        obj.IntegerValue1 = 16310;
-        obj.IntegerValue2 = 3242341;
+//        obj.IntegerValue1 = 16310;
+//        obj.IntegerValue2 = 3242341;
+        obj.IntegerValue3 = 3124;
+//        obj.IntegerValue3 = Integer.MIN_VALUE;
 
         TestObjectInteger obj2 = new TestObjectInteger();
 
 
-        NormalStore writer = new NormalStore();
+        BitStore writer = new BitStore();
         obj.serialize(writer);
-        obj2.deserialize(new NormalStore(writer.getArray()));
+        obj2.deserialize(new BitStore(writer.getArray()));
 
         assertEquals(obj, obj2);
-        assertTrue(writer.getArray().length == 8);
     }
 
 

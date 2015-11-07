@@ -7,18 +7,21 @@ public class TestObjectInteger extends Serializable {
 
     protected int IntegerValue1;
     protected int IntegerValue2;
+    protected int IntegerValue3;
 
 
     @Override
     public void serialize(StoreBase writer) throws NotImplementedException {
-        writer.write(IntegerValue1);
-        writer.write(IntegerValue2);
+//        writer.write(IntegerValue1);
+//        writer.write(IntegerValue2);
+        writer.write(IntegerValue3);
     }
 
     @Override
     public void deserialize(StoreBase reader) throws NotImplementedException {
-        IntegerValue1 = reader.readInt();
-        IntegerValue2 = reader.readInt();
+//        IntegerValue1 = reader.readInt();
+//        IntegerValue2 = reader.readInt();
+        IntegerValue3 = reader.readInt();
     }
 
     @Override
@@ -28,6 +31,7 @@ public class TestObjectInteger extends Serializable {
 
             if (obj.IntegerValue1 != this.IntegerValue1) return false;
             if (obj.IntegerValue2 != this.IntegerValue2) return false;
+            if (obj.IntegerValue3 != this.IntegerValue3) return false;
 
             return true;
         }

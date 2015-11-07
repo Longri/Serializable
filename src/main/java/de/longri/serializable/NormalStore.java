@@ -89,6 +89,9 @@ public class NormalStore extends StoreBase {
 
     @Override
     public <T extends Serializable> ArrayList<T> readList(Class<T> tClass) {
+
+        // TODO try to use same in BitStore and if ok, implement that in StoreBase
+
         ArrayList<T> list = new ArrayList<T>();
 
         int size = readInt();
