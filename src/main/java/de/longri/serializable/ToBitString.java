@@ -23,6 +23,14 @@ public class ToBitString {
         value[3] = b[1];
     }
 
+    ToBitString(int i) {
+        byte[] b = new byte[]{(byte) (i >> 24), (byte) (i >> 16), (byte) (i >> 8), (byte) i};
+        value[0] = b[0];
+        value[1] = b[1];
+        value[2] = b[2];
+        value[3] = b[3];
+    }
+
 
     public String toString() {
         StringBuilder builder = new StringBuilder();
