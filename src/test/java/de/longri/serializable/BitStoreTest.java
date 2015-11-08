@@ -9,16 +9,40 @@ import static org.junit.Assert.assertEquals;
  */
 public class BitStoreTest {
 
+//    @Test
+//    public void testByteObject() throws Exception {
+//        TestObjectByte obj = new TestObjectByte();
+//
+//        obj.value3 = 86;
+//
+//
+//        TestObjectByte obj2 = new TestObjectByte();
+//
+//        //TODO test with minus values and Byte.MIN_VALUE / Byte.MAX_VALUE
+//
+//        BitStore writer = new BitStore();
+//        obj.serialize(writer);
+//        obj2.deserialize(new BitStore(writer.getArray()));
+//
+//        assertEquals(obj, obj2);
+//
+//
+//    }
+
 
     @Test
     public void testByteObject() throws Exception {
-
         TestObjectByte obj = new TestObjectByte();
-        obj.byteValue1 = 26;
-        obj.byteValue2 = 117;
-        obj.byteValue3 = (byte) 200;
-
-        //TODO test with minus values and Byte.MIN_VALUE / Byte.MAX_VALUE
+        obj.value1 = 26;
+        obj.value2 = 117;
+        obj.value3 = -86;
+        obj.value4 = Byte.MIN_VALUE;
+        obj.value5 = Byte.MAX_VALUE;
+        obj.value6 = 0;
+        obj.value7 = Byte.MIN_VALUE + 1;
+        obj.value8 = Byte.MAX_VALUE - 1;
+        obj.value9 = Byte.MIN_VALUE + (Byte.MAX_VALUE / 2);
+        obj.value10 = Byte.MAX_VALUE - (Byte.MAX_VALUE / 2);
 
         TestObjectByte obj2 = new TestObjectByte();
 
@@ -27,7 +51,6 @@ public class BitStoreTest {
         obj2.deserialize(new BitStore(writer.getArray()));
 
         assertEquals(obj, obj2);
-
     }
 
 

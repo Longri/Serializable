@@ -54,13 +54,19 @@ public class BitStore extends StoreBase {
     protected void _write(byte b) throws NotImplementedException {
 
         short twoBytes = 0;
+        int count = 0;
 
-        //get index of first HIGH bit
-        BitSet set = BitSet.valueOf(new byte[]{b});
-        int index = set.previousSetBit(7);
+        if (b < 0) {
+            count = 7;
+        } else {
+            //get index of first HIGH bit
+            BitSet set = BitSet.valueOf(new byte[]{b});
+            int index = set.previousSetBit(7);
 
-        //calc bit count
-        int count = index + 1;
+            //calc bit count
+            count = index + 1;
+        }
+
 
         //write count bits
         twoBytes = (short) count;
@@ -69,7 +75,7 @@ public class BitStore extends StoreBase {
         twoBytes = (short) (twoBytes << count);
 
         //write bit's
-        twoBytes = (short) (twoBytes | (short) b & MASK_8bit);
+        twoBytes = (short) (twoBytes | ((short) (b & MASK_8bit)));
 
         //get two Bytes from buffer and put they into a Short
         short bufferValue = (short) (((getBufferByte(pointer._Byte) & MASK_8bit) << 8) | (getBufferByte(pointer._Byte + 1) & MASK_8bit));
