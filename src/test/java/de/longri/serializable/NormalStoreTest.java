@@ -22,7 +22,7 @@ public class NormalStoreTest {
         NormalStore writer = new NormalStore();
         obj.serialize(writer);
         obj2.deserialize(new NormalStore(writer.getArray()));
-
+        System.out.println("NormalStore-Boolean: " + writer.getArray().length + " Bytes!");
         assertEquals(obj, obj2);
     }
 
@@ -47,6 +47,8 @@ public class NormalStoreTest {
         NormalStore writer = new NormalStore();
         obj.serialize(writer);
         obj2.deserialize(new NormalStore(writer.getArray()));
+
+        System.out.println("NormalStore-Byte: " + writer.getArray().length + " Bytes!");
 
         assertEquals(obj, obj2);
     }
@@ -80,6 +82,8 @@ public class NormalStoreTest {
         NormalStore writer = new NormalStore();
         obj.serialize(writer);
         obj2.deserialize(new NormalStore(writer.getArray()));
+
+        System.out.println("NormalStore-Short: " + writer.getArray().length + " Bytes!");
 
         assertEquals(obj, obj2);
     }
@@ -115,37 +119,45 @@ public class NormalStoreTest {
         obj.serialize(writer);
         obj2.deserialize(new NormalStore(writer.getArray()));
 
+        System.out.println("NormalStore-Integer: " + writer.getArray().length + " Bytes!");
+
         assertEquals(obj, obj2);
     }
 
 
     @Test
-    public void testObject() throws Exception {
+    public void testLongObject() throws Exception {
 
-        TestObject obj = new TestObject();
-        obj.IntegerValue1 = 16310;
-        obj.IntegerValue2 = 3242341;
-        obj.bool1 = true;
-        obj.bool3 = true;
 
-        TestObject obj2 = new TestObject();
+        TestObjectLong obj = new TestObjectLong();
+
+        obj.value1 = -36;
+        obj.value2 = 117;
+        obj.value3 = 36;
+        obj.value4 = Short.MIN_VALUE;
+        obj.value5 = Short.MAX_VALUE;
+        obj.value6 = 0;
+        obj.value7 = Short.MIN_VALUE + 1;
+        obj.value8 = Short.MAX_VALUE - 1;
+
+        obj.value9 = Short.MIN_VALUE + (Short.MAX_VALUE / 2);
+        obj.value10 = Short.MAX_VALUE - (Short.MAX_VALUE / 2);
+
+        obj.value11 = Short.MIN_VALUE + (Short.MAX_VALUE / 4);
+        obj.value12 = Short.MAX_VALUE - (Short.MAX_VALUE / 4);
+
+        obj.value13 = Short.MIN_VALUE + (Short.MAX_VALUE / 8);
+        obj.value14 = Short.MAX_VALUE - (Short.MAX_VALUE / 8);
+
+
+        TestObjectLong obj2 = new TestObjectLong();
 
         NormalStore writer = new NormalStore();
         obj.serialize(writer);
         obj2.deserialize(new NormalStore(writer.getArray()));
 
-        assertEquals(obj, obj2);
-    }
 
-    @Test
-    public void testLong() throws Exception {
-
-        TestObjectLong obj = new TestObjectLong(System.currentTimeMillis());
-        TestObjectLong obj2 = new TestObjectLong(0);
-
-        NormalStore writer = new NormalStore();
-        obj.serialize(writer);
-        obj2.deserialize(new NormalStore(writer.getArray()));
+        System.out.println("NormalStore-Long: " + writer.getArray().length + " Bytes!");
 
         assertEquals(obj, obj2);
     }
