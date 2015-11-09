@@ -130,6 +130,13 @@ public class BitStore extends StoreBase {
 
     @Override
     protected void _write(short s) throws NotImplementedException {
+
+        // write one bit vor negative/positive value
+        if (s < 0) {
+            write(true);
+            s = (short) -s;
+        } else write(false);
+
         int fourBytes = 0;
 
         short v = s;
@@ -165,11 +172,17 @@ public class BitStore extends StoreBase {
         setBufferByte(pointer._Byte + 3, (byte) fourBytes);
 
         //move Pointer
-        movePointer(count + STATE_BIT_COUNT_SHORT);
+        movePointer(count + STATE_BIT_COUNT_SHORT + 1);
     }
 
     @Override
     protected void _write(int i) throws NotImplementedException {
+        // write one bit vor negative/positive value
+        if (i < 0) {
+            write(true);
+            i = -i;
+        } else write(false);
+
         long eightBytes = 0;
 
         int v = i;
@@ -216,7 +229,7 @@ public class BitStore extends StoreBase {
         setBufferByte(pointer._Byte + 7, (byte) eightBytes);
 
         //move Pointer
-        movePointer(count + STATE_BIT_COUNT_INTEGER);
+        movePointer(count + STATE_BIT_COUNT_INTEGER + 1);
     }
 
     @Override
@@ -280,6 +293,10 @@ public class BitStore extends StoreBase {
 
     @Override
     public short readShort() throws NotImplementedException {
+
+        // read if Negative value
+        boolean isNegative = readBool();
+
         //copy four bytes from Buffer
         int bufferValue = getBufferByte(pointer._Byte) << 24
                 | (getBufferByte(pointer._Byte + 1) & 0xff) << 16
@@ -306,13 +323,25 @@ public class BitStore extends StoreBase {
 
 
         //move pointer
-        movePointer(count + STATE_BIT_COUNT_SHORT);
+        movePointer(count + STATE_BIT_COUNT_SHORT + 1);
 
-        return (short) bufferValue;
+        short ret = (short) bufferValue;
+
+        if (isNegative) {
+            if (ret == 0) ret = Short.MIN_VALUE;
+            else
+                ret = (short) -ret;
+        }
+
+        return ret;
     }
 
     @Override
     public int readInt() throws NotImplementedException {
+
+        // read if Negative value
+        boolean isNegative = readBool();
+
         //copy eight bytes from Buffer
         long bufferValue = (getBufferByte(pointer._Byte) & 0xffL) << 56 // TODO try to remove "& 0xffL"
                 | (getBufferByte(pointer._Byte + 1) & 0xffL) << 48
@@ -342,9 +371,16 @@ public class BitStore extends StoreBase {
         bufferValue = (bufferValue >> 64 + (64 - count) & mask);
 
         //move pointer
-        movePointer(count + STATE_BIT_COUNT_INTEGER);
+        movePointer(count + STATE_BIT_COUNT_INTEGER + 1);
 
-        return (int) bufferValue;
+        int ret = (int) bufferValue;
+
+        if (isNegative) {
+            if (ret == 0) ret = Integer.MIN_VALUE;
+            else
+                ret = (int) -ret;
+        }
+        return ret;
     }
 
     @Override

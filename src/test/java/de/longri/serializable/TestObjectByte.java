@@ -15,6 +15,10 @@ public class TestObjectByte extends Serializable {
     protected byte value8 = 0;
     protected byte value9 = 0;
     protected byte value10 = 0;
+    protected byte value11 = 0;
+    protected byte value12 = 0;
+    protected byte value13 = 0;
+    protected byte value14 = 0;
 
 
     @Override
@@ -29,6 +33,10 @@ public class TestObjectByte extends Serializable {
         writer.write(value8);
         writer.write(value9);
         writer.write(value10);
+        writer.write(value11);
+        writer.write(value12);
+        writer.write(value13);
+        writer.write(value14);
     }
 
     @Override
@@ -43,6 +51,10 @@ public class TestObjectByte extends Serializable {
         value8 = reader.readByte();
         value9 = reader.readByte();
         value10 = reader.readByte();
+        value11 = reader.readByte();
+        value12 = reader.readByte();
+        value13 = reader.readByte();
+        value14 = reader.readByte();
     }
 
     @Override
@@ -60,6 +72,10 @@ public class TestObjectByte extends Serializable {
             if (obj.value8 != this.value8) return false;
             if (obj.value9 != this.value9) return false;
             if (obj.value10 != this.value10) return false;
+            if (obj.value11 != this.value11) return false;
+            if (obj.value12 != this.value12) return false;
+            if (obj.value13 != this.value13) return false;
+            if (obj.value14 != this.value14) return false;
 
 
             return true;
@@ -80,6 +96,10 @@ public class TestObjectByte extends Serializable {
         sb.append("value8=" + value8 + "\n");
         sb.append("value9=" + value9 + "\n");
         sb.append("value10=" + value10 + "\n");
+        sb.append("value11=" + value11 + "\n");
+        sb.append("value12=" + value12 + "\n");
+        sb.append("value13=" + value13 + "\n");
+        sb.append("value14=" + value14 + "\n");
         return sb.toString();
     }
 }

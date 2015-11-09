@@ -55,20 +55,33 @@ public class NormalStoreTest {
     public void testShortObject() throws Exception {
 
         TestObjectShort obj = new TestObjectShort();
-        obj.shortValue1 = 260;
-        obj.shortValue2 = 1170;
-        obj.shortValue3 = 2000;
+
+        obj.value1 = -36;
+        obj.value2 = 117;
+        obj.value3 = 36;
+        obj.value4 = Short.MIN_VALUE;
+        obj.value5 = Short.MAX_VALUE;
+        obj.value6 = 0;
+        obj.value7 = Short.MIN_VALUE + 1;
+        obj.value8 = Short.MAX_VALUE - 1;
+
+        obj.value9 = Short.MIN_VALUE + (Short.MAX_VALUE / 2);
+        obj.value10 = Short.MAX_VALUE - (Short.MAX_VALUE / 2);
+
+        obj.value11 = Short.MIN_VALUE + (Short.MAX_VALUE / 4);
+        obj.value12 = Short.MAX_VALUE - (Short.MAX_VALUE / 4);
+
+        obj.value13 = Short.MIN_VALUE + (Short.MAX_VALUE / 8);
+        obj.value14 = Short.MAX_VALUE - (Short.MAX_VALUE / 8);
+
 
         TestObjectShort obj2 = new TestObjectShort();
-
-        //TODO test with minus values and Short.MIN_VALUE / Short.MAX_VALUE
 
         NormalStore writer = new NormalStore();
         obj.serialize(writer);
         obj2.deserialize(new NormalStore(writer.getArray()));
 
         assertEquals(obj, obj2);
-
     }
 
 
@@ -76,20 +89,33 @@ public class NormalStoreTest {
     public void testIntegerObject() throws Exception {
 
         TestObjectInteger obj = new TestObjectInteger();
-//        obj.IntegerValue1 = 16310;
-//        obj.IntegerValue2 = 3242341;
-        obj.IntegerValue3 = 31243467;
+
+        obj.value1 = -36;
+        obj.value2 = 117;
+        obj.value3 = 36;
+        obj.value4 = Short.MIN_VALUE;
+        obj.value5 = Short.MAX_VALUE;
+        obj.value6 = 0;
+        obj.value7 = Short.MIN_VALUE + 1;
+        obj.value8 = Short.MAX_VALUE - 1;
+
+        obj.value9 = Short.MIN_VALUE + (Short.MAX_VALUE / 2);
+        obj.value10 = Short.MAX_VALUE - (Short.MAX_VALUE / 2);
+
+        obj.value11 = Short.MIN_VALUE + (Short.MAX_VALUE / 4);
+        obj.value12 = Short.MAX_VALUE - (Short.MAX_VALUE / 4);
+
+        obj.value13 = Short.MIN_VALUE + (Short.MAX_VALUE / 8);
+        obj.value14 = Short.MAX_VALUE - (Short.MAX_VALUE / 8);
+
 
         TestObjectInteger obj2 = new TestObjectInteger();
-
-        //TODO test with minus values and Integer.MIN_VALUE / Integer.MAX_VALUE
 
         NormalStore writer = new NormalStore();
         obj.serialize(writer);
         obj2.deserialize(new NormalStore(writer.getArray()));
 
         assertEquals(obj, obj2);
-
     }
 
 
