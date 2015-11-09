@@ -9,25 +9,22 @@ import static org.junit.Assert.assertEquals;
  */
 public class BitStoreTest {
 
-//    @Test
-//    public void testByteObject() throws Exception {
-//        TestObjectByte obj = new TestObjectByte();
-//
-//        obj.value3 = 86;
-//
-//
-//        TestObjectByte obj2 = new TestObjectByte();
-//
-//        //TODO test with minus values and Byte.MIN_VALUE / Byte.MAX_VALUE
-//
-//        BitStore writer = new BitStore();
-//        obj.serialize(writer);
-//        obj2.deserialize(new BitStore(writer.getArray()));
-//
-//        assertEquals(obj, obj2);
-//
-//
-//    }
+    @Test
+    public void testBooleanObject() throws Exception {
+
+        TestObjectBoolean obj = new TestObjectBoolean();
+        obj.value1 = true;
+        obj.value2 = false;
+        obj.value3 = true;
+
+        TestObjectBoolean obj2 = new TestObjectBoolean();
+
+        BitStore writer = new BitStore();
+        obj.serialize(writer);
+        obj2.deserialize(new BitStore(writer.getArray()));
+
+        assertEquals(obj, obj2);
+    }
 
 
     @Test

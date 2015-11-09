@@ -23,6 +23,17 @@ public class BitStore extends StoreBase {
     private final static int STATE_BIT_MASK_INTEGER = 31;
 
 
+    public enum Bitmask {
+        BIT_0((byte) (1 << 0)), BIT_1((byte) (1 << 1)), BIT_2((byte) (1 << 2)), BIT_3((byte) (1 << 3)),
+        BIT_4((byte) (1 << 4)), BIT_5((byte) (1 << 5)), BIT_6((byte) (1 << 6)), BIT_7((byte) (1 << 7));
+        private int value;
+
+        Bitmask(byte value) {
+            this.value = value;
+        }
+    }
+
+
     private class Pointer {
         int _Byte = 0;
         int _Bit = 0;
@@ -54,8 +65,14 @@ public class BitStore extends StoreBase {
 
     @Override
     protected void _write(boolean b) throws NotImplementedException {
-
+        if (b) {
+            buffer[pointer._Byte] |= getBitmask().value;
+        } else {
+            buffer[pointer._Byte] &= ~getBitmask().value;
+        }
+        movePointer(1);
     }
+
 
     @Override
     protected void _write(byte b) throws NotImplementedException {
@@ -207,7 +224,10 @@ public class BitStore extends StoreBase {
 
     @Override
     public boolean readBool() throws NotImplementedException {
-        throw new NotImplementedException("Read Boolean not implemented from \"BitStore\"");
+        Bitmask bit = getBitmask();
+        boolean ret = (buffer[pointer._Byte] & bit.value) == bit.value;
+        movePointer(1);
+        return ret;
     }
 
     @Override
@@ -322,6 +342,38 @@ public class BitStore extends StoreBase {
     @Override
     public <T extends Serializable> ArrayList<T> readList(Class<T> tClass) throws NotImplementedException {
         throw new NotImplementedException("Read List not implemented from \"BitStore\"");
+    }
+
+
+    private Bitmask getBitmask() {
+        Bitmask bit = Bitmask.BIT_7;
+        switch (pointer._Bit) {
+            case 0:
+                bit = Bitmask.BIT_7;
+                break;
+            case 1:
+                bit = Bitmask.BIT_6;
+                break;
+            case 2:
+                bit = Bitmask.BIT_5;
+                break;
+            case 3:
+                bit = Bitmask.BIT_4;
+                break;
+            case 4:
+                bit = Bitmask.BIT_3;
+                break;
+            case 5:
+                bit = Bitmask.BIT_2;
+                break;
+            case 6:
+                bit = Bitmask.BIT_1;
+                break;
+            case 7:
+                bit = Bitmask.BIT_0;
+                break;
+        }
+        return bit;
     }
 
     private byte getBufferByte(int byteIndex) {
