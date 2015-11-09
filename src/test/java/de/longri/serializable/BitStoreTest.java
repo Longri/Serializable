@@ -33,16 +33,22 @@ public class BitStoreTest {
     @Test
     public void testByteObject() throws Exception {
         TestObjectByte obj = new TestObjectByte();
-        obj.value1 = 26;
+        obj.value1 = -36;
         obj.value2 = 117;
-        obj.value3 = -86;
+        obj.value3 = 36;
         obj.value4 = Byte.MIN_VALUE;
-        obj.value5 = Byte.MAX_VALUE;
-        obj.value6 = 0;
-        obj.value7 = Byte.MIN_VALUE + 1;
-        obj.value8 = Byte.MAX_VALUE - 1;
-        obj.value9 = Byte.MIN_VALUE + (Byte.MAX_VALUE / 2);
-        obj.value10 = Byte.MAX_VALUE - (Byte.MAX_VALUE / 2);
+
+//        obj.value1 = -36;
+//        obj.value2 = 117;
+//        obj.value3 = 36;
+//        obj.value4 = Byte.MIN_VALUE;
+//        obj.value5 = Byte.MAX_VALUE;
+//        obj.value6 = 0;
+//        obj.value7 = Byte.MIN_VALUE + 1;
+//        obj.value8 = Byte.MAX_VALUE - 1;
+//        obj.value9 = Byte.MIN_VALUE + (Byte.MAX_VALUE / 2);
+//        obj.value10 = Byte.MAX_VALUE - (Byte.MAX_VALUE / 2);
+
 
         TestObjectByte obj2 = new TestObjectByte();
 

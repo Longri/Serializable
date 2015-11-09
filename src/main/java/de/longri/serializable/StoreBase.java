@@ -27,6 +27,8 @@ public abstract class StoreBase {
 
 /*---------- abstract method's --------------*/
 
+    protected abstract void _write(boolean b) throws NotImplementedException;
+
     protected abstract void _write(byte b) throws NotImplementedException;
 
     protected abstract void _write(short s) throws NotImplementedException;
@@ -36,6 +38,8 @@ public abstract class StoreBase {
     protected abstract void _write(long l) throws NotImplementedException;
 
     protected abstract void _write(String s) throws NotImplementedException;
+
+    public abstract boolean readBool() throws NotImplementedException;
 
     public abstract byte readByte() throws NotImplementedException;
 
@@ -58,6 +62,11 @@ public abstract class StoreBase {
 
     public final boolean isEmpty() {
         return size <= 0;
+    }
+
+    public final void write(boolean b) throws NotImplementedException {
+        ensureCapacity(2);
+        _write(b);
     }
 
     public final void write(byte b) throws NotImplementedException {

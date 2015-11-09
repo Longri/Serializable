@@ -9,6 +9,23 @@ import static org.junit.Assert.assertEquals;
  */
 public class NormalStoreTest {
 
+    @Test
+    public void testBooleanObject() throws Exception {
+
+        TestObjectBoolean obj = new TestObjectBoolean();
+        obj.value1 = true;
+        obj.value2 = false;
+        obj.value3 = true;
+
+        TestObjectBoolean obj2 = new TestObjectBoolean();
+
+        NormalStore writer = new NormalStore();
+        obj.serialize(writer);
+        obj2.deserialize(new NormalStore(writer.getArray()));
+
+        assertEquals(obj, obj2);
+    }
+
 
     @Test
     public void testByteObject() throws Exception {

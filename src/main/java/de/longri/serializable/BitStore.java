@@ -33,13 +33,15 @@ public class BitStore extends StoreBase {
 
     private void movePointer(int i) {
 
-        long allBit = pointer._Byte * 8 + pointer._Bit + i;
+        if (pointer._Bit + i > 8) {
+            long allBit = pointer._Byte * 8 + pointer._Bit + i;
 
-        pointer._Byte = (int) (allBit / 8);
-        pointer._Bit = (int) (allBit % 8);
-
+            pointer._Byte = (int) (allBit / 8);
+            pointer._Bit = (int) (allBit % 8);
+        } else {
+            pointer._Bit += i;
+        }
         size = pointer._Byte + 1;
-
     }
 
     public BitStore(byte[] array) {
@@ -51,13 +53,20 @@ public class BitStore extends StoreBase {
     }
 
     @Override
+    protected void _write(boolean b) throws NotImplementedException {
+
+    }
+
+    @Override
     protected void _write(byte b) throws NotImplementedException {
 
         short twoBytes = 0;
         int count = 0;
 
         if (b < 0) {
-            count = 7;
+            count = 8;
+        } else if (b == 0) {
+            count = 1;
         } else {
             //get index of first HIGH bit
             BitSet set = BitSet.valueOf(new byte[]{b});
@@ -69,7 +78,7 @@ public class BitStore extends StoreBase {
 
 
         //write count bits
-        twoBytes = (short) count;
+        twoBytes = (short) (count & STATE_BIT_MASK_BYTE);
 
         //shift to have place for bit's
         twoBytes = (short) (twoBytes << count);
@@ -194,6 +203,11 @@ public class BitStore extends StoreBase {
     @Override
     protected void _write(String s) throws NotImplementedException {
         throw new NotImplementedException("Write String not implemented from \"BitStore\"");
+    }
+
+    @Override
+    public boolean readBool() throws NotImplementedException {
+        throw new NotImplementedException("Read Boolean not implemented from \"BitStore\"");
     }
 
     @Override

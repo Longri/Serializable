@@ -66,4 +66,20 @@ public class TestObjectByte extends Serializable {
         }
         return false;
     }
+
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("value1=" + value1 + "\n");
+        sb.append("value2=" + value2 + "\n");
+        sb.append("value3=" + value3 + "\n");
+        sb.append("value4=" + value4 + "\n");
+        sb.append("value5=" + value5 + "\n");
+        sb.append("value6=" + value6 + "\n");
+        sb.append("value7=" + value7 + "\n");
+        sb.append("value8=" + value8 + "\n");
+        sb.append("value9=" + value9 + "\n");
+        sb.append("value10=" + value10 + "\n");
+        return sb.toString();
+    }
 }

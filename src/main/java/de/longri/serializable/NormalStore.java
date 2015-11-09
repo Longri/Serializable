@@ -20,6 +20,11 @@ public class NormalStore extends StoreBase {
     int readIndex = 0;
 
     @Override
+    protected void _write(boolean b) {
+        buffer[size++] = (byte) (b ? 1 : 0);
+    }
+
+    @Override
     protected void _write(byte b) {
         buffer[size++] = b;
     }
@@ -46,6 +51,11 @@ public class NormalStore extends StoreBase {
         byte[] bytes = s.getBytes(UTF8_CHARSET);
         _write(bytes.length);
         add(bytes);
+    }
+
+    @Override
+    public boolean readBool() {
+        return buffer[readIndex++] == 1;
     }
 
     @Override
