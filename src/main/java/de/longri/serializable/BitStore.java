@@ -44,7 +44,7 @@ public class BitStore extends StoreBase {
 
     private void movePointer(int i) {
 
-        if (pointer._Bit + i > 8) {
+        if (pointer._Bit + i > 7) {
             long allBit = pointer._Byte * 8 + pointer._Bit + i;
 
             pointer._Byte = (int) (allBit / 8);
@@ -76,6 +76,13 @@ public class BitStore extends StoreBase {
 
     @Override
     protected void _write(byte b) throws NotImplementedException {
+
+        // write one bit vor negative/positive value
+        if (b < 0) {
+            write(true);
+            b = (byte) -b;
+        } else write(false);
+
 
         short twoBytes = 0;
         int count = 0;
@@ -233,6 +240,9 @@ public class BitStore extends StoreBase {
     @Override
     public byte readByte() throws NotImplementedException {
 
+        // read if Negative value
+        boolean isNegative = readBool();
+
         //copy two bytes from Buffer
         short bufferValue = (short) (((getBufferByte(pointer._Byte) & MASK_8bit) << 8) | (getBufferByte(pointer._Byte + 1) & MASK_8bit));
 
@@ -257,7 +267,15 @@ public class BitStore extends StoreBase {
         //move pointer
         movePointer(count + STATE_BIT_COUNT_BYTE);
 
-        return (byte) bufferValue;
+        byte ret = (byte) bufferValue;
+
+        if (isNegative) {
+            if (ret == 0) ret = Byte.MIN_VALUE;
+            else
+                ret = (byte) -ret;
+        }
+
+        return ret;
     }
 
     @Override
