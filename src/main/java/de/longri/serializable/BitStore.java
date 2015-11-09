@@ -123,7 +123,7 @@ public class BitStore extends StoreBase {
         setBufferByte(pointer._Byte + 1, (byte) (twoBytes));
 
         //move Pointer
-        movePointer(count + STATE_BIT_COUNT_BYTE);
+        movePointer(count + STATE_BIT_COUNT_BYTE + 1);
 
     }
 
@@ -265,7 +265,7 @@ public class BitStore extends StoreBase {
         bufferValue = (short) (bufferValue >>> 8 + (8 - count) & mask);
 
         //move pointer
-        movePointer(count + STATE_BIT_COUNT_BYTE);
+        movePointer(count + STATE_BIT_COUNT_BYTE + 1);
 
         byte ret = (byte) bufferValue;
 
