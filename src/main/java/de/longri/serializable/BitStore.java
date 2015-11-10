@@ -12,7 +12,7 @@ public class BitStore extends StoreBase {
 
     private final static int MASK_8bit = 0xFF;
     private final static int MASK_16bit = 0xFFFF;
-    private final static int MASK_32bit = 0xFFFFFF;
+    private final static long MASK_32bit = 0xFFFFFFFF;
 
     private final static int STATE_BIT_COUNT_BYTE = 3;
     private final static int STATE_BIT_COUNT_SHORT = 4;
@@ -33,20 +33,16 @@ public class BitStore extends StoreBase {
         }
     }
 
-
     private class Pointer {
         int _Byte = 0;
         int _Bit = 0;
     }
 
-
     private Pointer pointer = new Pointer();
 
     private void movePointer(int i) {
-
         if (pointer._Bit + i > 7) {
             long allBit = pointer._Byte * 8 + pointer._Bit + i;
-
             pointer._Byte = (int) (allBit / 8);
             pointer._Bit = (int) (allBit % 8);
         } else {
@@ -180,7 +176,9 @@ public class BitStore extends StoreBase {
         // write one bit vor negative/positive value
         if (i < 0) {
             write(true);
-            i = -i;
+            if (i == Integer.MIN_VALUE) i = 0;
+            else
+                i = -i;
         } else write(false);
 
         long eightBytes = 0;
@@ -196,6 +194,10 @@ public class BitStore extends StoreBase {
         //write count bits
         eightBytes = (long) count;
 
+
+        String test = new ToBitString(eightBytes).toString();
+
+
         //shift to have place for bit's
         eightBytes = eightBytes << count;
 
@@ -203,7 +205,7 @@ public class BitStore extends StoreBase {
         eightBytes = eightBytes | (i & MASK_32bit);
 
         //get eight Bytes from buffer and put they into a Short
-        long bufferValue = (getBufferByte(pointer._Byte) & 0xffL) << 56 // TODO try to remove "& 0xffL"
+        long bufferValue = (getBufferByte(pointer._Byte) & 0xffL) << 56
                 | (getBufferByte(pointer._Byte + 1) & 0xffL) << 48
                 | (getBufferByte(pointer._Byte + 2) & 0xffL) << 40
                 | (getBufferByte(pointer._Byte + 3) & 0xffL) << 32
@@ -343,7 +345,7 @@ public class BitStore extends StoreBase {
         boolean isNegative = readBool();
 
         //copy eight bytes from Buffer
-        long bufferValue = (getBufferByte(pointer._Byte) & 0xffL) << 56 // TODO try to remove "& 0xffL"
+        long bufferValue = (getBufferByte(pointer._Byte) & 0xffL) << 56
                 | (getBufferByte(pointer._Byte + 1) & 0xffL) << 48
                 | (getBufferByte(pointer._Byte + 2) & 0xffL) << 40
                 | (getBufferByte(pointer._Byte + 3) & 0xffL) << 32

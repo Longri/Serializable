@@ -18,17 +18,17 @@ public class ToBitString {
     }
 
     ToBitString(short s) {
-        byte[] b = new byte[]{(byte) (s >> 8), (byte) s};
-        value[2] = b[0];
-        value[3] = b[1];
+        value = new byte[]{(byte) (s >> 8), (byte) s};
+
     }
 
     ToBitString(int i) {
-        byte[] b = new byte[]{(byte) (i >> 24), (byte) (i >> 16), (byte) (i >> 8), (byte) i};
-        value[0] = b[0];
-        value[1] = b[1];
-        value[2] = b[2];
-        value[3] = b[3];
+        value = new byte[]{(byte) (i >> 24), (byte) (i >> 16), (byte) (i >> 8), (byte) i};
+       }
+
+    ToBitString(long l) {
+        value = new byte[]{(byte) (l >> 56), (byte) (l >> 48), (byte) (l >> 40), (byte) (l >> 32),
+                (byte) (l >> 24), (byte) (l >> 16), (byte) (l >> 8), (byte) l};
     }
 
 
