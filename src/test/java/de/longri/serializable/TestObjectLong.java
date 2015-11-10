@@ -24,37 +24,37 @@ public class TestObjectLong extends Serializable {
     @Override
     public void serialize(StoreBase writer) throws NotImplementedException {
         writer.write(value1);
-        writer.write(value2);
-        writer.write(value3);
-        writer.write(value4);
-        writer.write(value5);
-        writer.write(value6);
-        writer.write(value7);
-        writer.write(value8);
-        writer.write(value9);
-        writer.write(value10);
-        writer.write(value11);
-        writer.write(value12);
-        writer.write(value13);
-        writer.write(value14);
+//        writer.write(value2);
+//        writer.write(value3);
+//        writer.write(value4);
+//        writer.write(value5);
+//        writer.write(value6);
+//        writer.write(value7);
+//        writer.write(value8);
+//        writer.write(value9);
+//        writer.write(value10);
+//        writer.write(value11);
+//        writer.write(value12);
+//        writer.write(value13);
+//        writer.write(value14);
     }
 
     @Override
     public void deserialize(StoreBase reader) throws NotImplementedException {
         value1 = reader.readLong();
-        value2 = reader.readLong();
-        value3 = reader.readLong();
-        value4 = reader.readLong();
-        value5 = reader.readLong();
-        value6 = reader.readLong();
-        value7 = reader.readLong();
-        value8 = reader.readLong();
-        value9 = reader.readLong();
-        value10 = reader.readLong();
-        value11 = reader.readLong();
-        value12 = reader.readLong();
-        value13 = reader.readLong();
-        value14 = reader.readLong();
+//        value2 = reader.readLong();
+//        value3 = reader.readLong();
+//        value4 = reader.readLong();
+//        value5 = reader.readLong();
+//        value6 = reader.readLong();
+//        value7 = reader.readLong();
+//        value8 = reader.readLong();
+//        value9 = reader.readLong();
+//        value10 = reader.readLong();
+//        value11 = reader.readLong();
+//        value12 = reader.readLong();
+//        value13 = reader.readLong();
+//        value14 = reader.readLong();
     }
 
     @Override

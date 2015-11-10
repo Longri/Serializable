@@ -1,5 +1,6 @@
 package de.longri.serializable;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.BitSet;
 
@@ -13,15 +14,19 @@ public class BitStore extends StoreBase {
     private final static int MASK_8bit = 0xFF;
     private final static int MASK_16bit = 0xFFFF;
     private final static long MASK_32bit = 0xFFFFFFFF;
+    private final static long MASK_64bit = 0xFFFFFFFFFFFFFFFFL;
 
     private final static int STATE_BIT_COUNT_BYTE = 3;
     private final static int STATE_BIT_COUNT_SHORT = 4;
     private final static int STATE_BIT_COUNT_INTEGER = 5;
+    private final static int STATE_BIT_COUNT_LONG = 6;
 
     private final static int STATE_BIT_MASK_BYTE = 7;
     private final static int STATE_BIT_MASK_SHORT = 15;
     private final static int STATE_BIT_MASK_INTEGER = 31;
+    private final static int STATE_BIT_MASK_LONG = 63;
 
+    private static final int BIT_COUNT_LONG = 64;
 
     public enum Bitmask {
         BIT_0((byte) (1 << 0)), BIT_1((byte) (1 << 1)), BIT_2((byte) (1 << 2)), BIT_3((byte) (1 << 3)),
@@ -194,10 +199,6 @@ public class BitStore extends StoreBase {
         //write count bits
         eightBytes = (long) count;
 
-
-        String test = new ToBitString(eightBytes).toString();
-
-
         //shift to have place for bit's
         eightBytes = eightBytes << count;
 
@@ -236,7 +237,60 @@ public class BitStore extends StoreBase {
 
     @Override
     protected void _write(long l) throws NotImplementedException {
-        throw new NotImplementedException("Write Long not implemented from \"BitStore\"");
+        // write one bit vor negative/positive value
+        if (l < 0) {
+            write(true);
+            if (l == Long.MIN_VALUE) l = 0;
+            else
+                l = -l;
+        } else write(false);
+
+        BigInteger nineBytes = new BigInteger(new byte[]{(byte) 0, (byte) (l >> 56), (byte) (l >> 48),
+                (byte) (l >> 40), (byte) (l >> 32), (byte) (l >> 24), (byte) (l >> 16), (byte) (l >> 8),
+                (byte) l});
+
+        byte count = (byte) nineBytes.bitLength();
+        if (count == 0) count = 1;
+
+        //write count bits
+        write((count & Bitmask.BIT_5.value) == Bitmask.BIT_5.value);
+        write((count & Bitmask.BIT_4.value) == Bitmask.BIT_4.value);
+        write((count & Bitmask.BIT_3.value) == Bitmask.BIT_3.value);
+        write((count & Bitmask.BIT_2.value) == Bitmask.BIT_2.value);
+        write((count & Bitmask.BIT_1.value) == Bitmask.BIT_1.value);
+        write((count & Bitmask.BIT_0.value) == Bitmask.BIT_0.value);
+
+        //get nine Bytes from buffer
+        BigInteger bufferValueBigInteger = new BigInteger(new byte[]{
+                getBufferByte(pointer._Byte), getBufferByte(pointer._Byte + 1),
+                getBufferByte(pointer._Byte + 2), getBufferByte(pointer._Byte + 3),
+                getBufferByte(pointer._Byte + 4), getBufferByte(pointer._Byte + 5),
+                getBufferByte(pointer._Byte + 6), getBufferByte(pointer._Byte + 7),
+                getBufferByte(pointer._Byte + 8)
+        });
+
+        //shift the eightBytes to the right pointer
+        nineBytes = nineBytes.shiftLeft(BIT_COUNT_LONG - 8 + (8 - count) + (8 - pointer._Bit));
+        bufferValueBigInteger = bufferValueBigInteger.or(nineBytes);
+
+        byte[] b = bufferValueBigInteger.toByteArray();
+        int length = b.length;
+
+
+        //write back to Buffer
+        if (length > 1) setBufferByte(pointer._Byte, b[0]);
+        if (length > 2) setBufferByte(pointer._Byte + 1, b[1]);
+        if (length > 3) setBufferByte(pointer._Byte + 2, b[2]);
+        if (length > 4) setBufferByte(pointer._Byte + 3, b[3]);
+        if (length > 5) setBufferByte(pointer._Byte + 4, b[4]);
+        if (length > 6) setBufferByte(pointer._Byte + 5, b[5]);
+        if (length > 7) setBufferByte(pointer._Byte + 6, b[6]);
+        if (length > 8) setBufferByte(pointer._Byte + 7, b[7]);
+        if (length > 9) setBufferByte(pointer._Byte + 7, b[8]);
+
+
+        //move Pointer
+        movePointer(count + 1);
     }
 
     @Override
@@ -387,7 +441,70 @@ public class BitStore extends StoreBase {
 
     @Override
     public long readLong() throws NotImplementedException {
-        throw new NotImplementedException("Read Long not implemented from \"BitStore\"");
+        // read if Negative value
+        boolean isNegative = readBool();
+
+        //read count
+        byte count = 0;
+
+        if (readBool()) count |= Bitmask.BIT_5.value;
+        else count &= ~Bitmask.BIT_5.value;
+
+        if (readBool()) count |= Bitmask.BIT_4.value;
+        else count &= ~Bitmask.BIT_4.value;
+
+        if (readBool()) count |= Bitmask.BIT_3.value;
+        else count &= ~Bitmask.BIT_3.value;
+
+        if (readBool()) count |= Bitmask.BIT_2.value;
+        else count &= ~Bitmask.BIT_2.value;
+
+        if (readBool()) count |= Bitmask.BIT_1.value;
+        else count &= ~Bitmask.BIT_1.value;
+
+        if (readBool()) count |= Bitmask.BIT_0.value;
+        else count &= ~Bitmask.BIT_0.value;
+
+
+        if (count == 0) count = 64;
+
+
+        BigInteger bufferValueBigInteger = new BigInteger(new byte[]{
+                getBufferByte(pointer._Byte), getBufferByte(pointer._Byte + 1),
+                getBufferByte(pointer._Byte + 2), getBufferByte(pointer._Byte + 3),
+                getBufferByte(pointer._Byte + 4), getBufferByte(pointer._Byte + 5),
+                getBufferByte(pointer._Byte + 6), getBufferByte(pointer._Byte + 7),
+                getBufferByte(pointer._Byte + 8)
+        });
+
+        //create Mask
+        int byteBitLength = (bufferValueBigInteger.bitLength() / 8 + 1) * 8;
+        BigInteger Mask = BigInteger.valueOf(1);
+        BigInteger one = BigInteger.valueOf(1);
+        for (int i = 0; i < byteBitLength - 1; i++) {
+            Mask = Mask.shiftLeft(1);
+            Mask = Mask.add(one);
+        }
+
+//shift left for pointer
+        bufferValueBigInteger = bufferValueBigInteger.shiftLeft(pointer._Bit);
+
+// cut pointer
+        bufferValueBigInteger = bufferValueBigInteger.and(Mask);
+
+//shift right to the first pos
+        bufferValueBigInteger = bufferValueBigInteger.shiftRight(byteBitLength - count);
+
+        long retValue = bufferValueBigInteger.longValue();
+        if (isNegative) {
+            if (retValue == 0) retValue = Long.MIN_VALUE;
+            else
+                retValue = (long) -retValue;
+        }
+        //move Pointer
+        movePointer(count + 1);
+
+        return retValue;
     }
 
     @Override
