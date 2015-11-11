@@ -1,6 +1,5 @@
 package de.longri.serializable;
 
-import java.math.BigInteger;
 
 /**
  * Created by Longri on 06.11.15.
@@ -33,7 +32,7 @@ public class ToBitString {
                 (byte) (l >> 24), (byte) (l >> 16), (byte) (l >> 8), (byte) l};
     }
 
-    ToBitString(BigInteger big) {
+    ToBitString(ByteArray big) {
         value = big.toByteArray();
     }
 

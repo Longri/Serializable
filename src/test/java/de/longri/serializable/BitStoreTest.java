@@ -132,25 +132,27 @@ public class BitStoreTest {
 
         TestObjectLong obj = new TestObjectLong();
 
-        obj.value1 = Long.MAX_VALUE;
+        //  obj.value1 = Long.MAX_VALUE;
+        obj.value1 = 0;
+        obj.value2 = Long.MIN_VALUE + 1;
 
-//        obj.value1 = -36;
-//        obj.value2 = 117;
-//        obj.value3 = 36;
-//        obj.value4 = Long.MIN_VALUE;
-//        obj.value5 = Long.MAX_VALUE;
-//        obj.value6 = 0;
-//        obj.value7 = Long.MIN_VALUE + 1;
-//        obj.value8 = Long.MAX_VALUE - 1;
-//
-//        obj.value9 = Long.MIN_VALUE + (Long.MAX_VALUE / 2);
-//        obj.value10 = Long.MAX_VALUE - (Long.MAX_VALUE / 2);
-//
-//        obj.value11 = Long.MIN_VALUE + (Long.MAX_VALUE / 4);
-//        obj.value12 = Long.MAX_VALUE - (Long.MAX_VALUE / 4);
-//
-//        obj.value13 = Long.MIN_VALUE + (Long.MAX_VALUE / 8);
-//        obj.value14 = Long.MAX_VALUE - (Long.MAX_VALUE / 8);
+        obj.value1 = -36;
+        obj.value2 = 117;
+        obj.value3 = 36;
+        obj.value4 = Long.MIN_VALUE;
+        obj.value5 = Long.MAX_VALUE;
+        obj.value6 = 0;
+        obj.value7 = Long.MIN_VALUE + 1;
+        obj.value8 = Long.MAX_VALUE - 1;
+
+        obj.value9 = Long.MIN_VALUE + (Long.MAX_VALUE / 2);
+        obj.value10 = Long.MAX_VALUE - (Long.MAX_VALUE / 2);
+
+        obj.value11 = Long.MIN_VALUE + (Long.MAX_VALUE / 4);
+        obj.value12 = Long.MAX_VALUE - (Long.MAX_VALUE / 4);
+
+        obj.value13 = Long.MIN_VALUE + (Long.MAX_VALUE / 8);
+        obj.value14 = Long.MAX_VALUE - (Long.MAX_VALUE / 8);
 
 
         TestObjectLong obj2 = new TestObjectLong();
