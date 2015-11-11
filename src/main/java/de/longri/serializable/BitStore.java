@@ -493,8 +493,8 @@ public class BitStore extends StoreBase {
 //create Mask
         int byteBitLength = (bufferValueByteArray.bitLength() / 8 + 1) * 8;
 
-        ByteArray Mask = ByteArray.valueOf(1);
-        ByteArray one = ByteArray.valueOf(1);
+        ByteArray Mask = new ByteArray(1);
+        ByteArray one = new ByteArray(1);
         for (int i = 0; i < 72 - 1; i++) {
             Mask = Mask.shiftLeft(1);
             Mask = Mask.add(one);

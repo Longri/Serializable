@@ -29,6 +29,7 @@ public class ByteArray {
      * zero-length mag array.
      */
     final int[] mag;
+    private int maxByteCount = 0; // TODO make final
 
     // These "redundant fields" are initialized with recognizable nonsense
     // values, and cached the first time they are needed (or never, if they
@@ -583,47 +584,30 @@ public class ByteArray {
 
     //Static Factory Methods
 
-    /**
-     * Returns a ByteArray whose value is equal to that of the
-     * specified {@code long}.  This "static factory method" is
-     * provided in preference to a ({@code long}) constructor
-     * because it allows for reuse of frequently used BigIntegers.
-     *
-     * @param val value of the ByteArray to return.
-     * @return a ByteArray with the specified value.
-     */
-    public static ByteArray valueOf(long val) {
-        // If -MAX_CONSTANT < val < MAX_CONSTANT, return stashed constant
-        if (val == 0)
-            return ZERO;
-        if (val > 0 && val <= MAX_CONSTANT)
-            return posConst[(int) val];
-        else if (val < 0 && val >= -MAX_CONSTANT)
-            return negConst[(int) -val];
 
-        return new ByteArray(val);
+    public ByteArray(long val) {
+        this(8, val);
     }
 
-    /**
-     * Constructs a ByteArray with the specified value, which may not be zero.
-     */
-    private ByteArray(long val) {
-        if (val < 0) {
-            val = -val;
-            signum = -1;
-        } else {
-            signum = 1;
-        }
+    public ByteArray(int byteCount, long val) {
+        this.maxByteCount = byteCount;
 
+        signum = 1;
         int highWord = (int) (val >>> 32);
-        if (highWord == 0) {
-            mag = new int[1];
-            mag[0] = (int) val;
-        } else {
-            mag = new int[2];
-            mag[0] = highWord;
-            mag[1] = (int) val;
-        }
+
+        mag = new int[2];
+        mag[0] = highWord;
+        mag[1] = (int) val;
+
+//
+//        if (highWord == 0) {
+//            mag = new int[1];
+//            mag[0] = (int) val;
+//        } else {
+//            mag = new int[2];
+//            mag[0] = highWord;
+//            mag[1] = (int) val;
+//        }
     }
 
     /**
@@ -654,7 +638,7 @@ public class ByteArray {
     /**
      * The cache of logarithms of radices for base conversion.
      */
-    private static final double[] logCache;
+    //  private static final double[] logCache;
 
     /**
      * The natural log of 2.  This is used in computing cache indices.
@@ -669,18 +653,18 @@ public class ByteArray {
             negConst[i] = new ByteArray(magnitude, -1);
         }
 
-        /*
-         * Initialize the cache of radix^(2^x) values used for base conversion
-         * with just the very first value.  Additional values will be created
-         * on demand.
-         */
-        powerCache = new ByteArray[Character.MAX_RADIX + 1][];
-        logCache = new double[Character.MAX_RADIX + 1];
-
-        for (int i = Character.MIN_RADIX; i <= Character.MAX_RADIX; i++) {
-            powerCache[i] = new ByteArray[]{ByteArray.valueOf(i)};
-            logCache[i] = Math.log(i);
-        }
+//        /*
+//         * Initialize the cache of radix^(2^x) values used for base conversion
+//         * with just the very first value.  Additional values will be created
+//         * on demand.
+//         */
+//        powerCache = new ByteArray[Character.MAX_RADIX + 1][];
+//        logCache = new double[Character.MAX_RADIX + 1];
+//
+//        for (int i = Character.MIN_RADIX; i <= Character.MAX_RADIX; i++) {
+//            powerCache[i] = new ByteArray[]{new ByteArray(i)};
+//            logCache[i] = Math.log(i);
+//        }
     }
 
     /**
@@ -690,29 +674,29 @@ public class ByteArray {
      */
     public static final ByteArray ZERO = new ByteArray(new int[0], 0);
 
-    /**
-     * The ByteArray constant one.
-     *
-     * @since 1.2
-     */
-    public static final ByteArray ONE = valueOf(1);
-
-    /**
-     * The ByteArray constant two.  (Not exported.)
-     */
-    private static final ByteArray TWO = valueOf(2);
-
-    /**
-     * The ByteArray constant -1.  (Not exported.)
-     */
-    private static final ByteArray NEGATIVE_ONE = valueOf(-1);
-
-    /**
-     * The ByteArray constant ten.
-     *
-     * @since 1.5
-     */
-    public static final ByteArray TEN = valueOf(10);
+//    /**
+//     * The ByteArray constant one.
+//     *
+//     * @since 1.2
+//     */
+//    public static final ByteArray ONE = valueOf(1);
+//
+//    /**
+//     * The ByteArray constant two.  (Not exported.)
+//     */
+//    private static final ByteArray TWO = valueOf(2);
+//
+//    /**
+//     * The ByteArray constant -1.  (Not exported.)
+//     */
+//    private static final ByteArray NEGATIVE_ONE = valueOf(-1);
+//
+//    /**
+//     * The ByteArray constant ten.
+//     *
+//     * @since 1.5
+//     */
+//    public static final ByteArray TEN = valueOf(10);
 
 // Arithmetic Operations
 
@@ -748,7 +732,7 @@ public class ByteArray {
         if (val == 0)
             return this;
         if (signum == 0)
-            return valueOf(val);
+            return new ByteArray(val);
         if (Long.signum(val) == signum)
             return new ByteArray(add(mag, Math.abs(val)), signum);
         int cmp = compareMagnitude(val);
@@ -1499,125 +1483,125 @@ public class ByteArray {
     }
 
 
-    /**
-     * Returns a ByteArray whose value is <tt>(this<sup>exponent</sup>)</tt>.
-     * Note that {@code exponent} is an integer rather than a ByteArray.
-     *
-     * @param exponent exponent to which this ByteArray is to be raised.
-     * @return <tt>this<sup>exponent</sup></tt>
-     * @throws ArithmeticException {@code exponent} is negative.  (This would
-     *                             cause the operation to yield a non-integer value.)
-     */
-    public ByteArray pow(int exponent) {
-        if (exponent < 0) {
-            throw new ArithmeticException("Negative exponent");
-        }
-        if (signum == 0) {
-            return (exponent == 0 ? ONE : this);
-        }
-
-        ByteArray partToSquare = this.abs();
-
-        // Factor out powers of two from the base, as the exponentiation of
-        // these can be done by left shifts only.
-        // The remaining part can then be exponentiated faster.  The
-        // powers of two will be multiplied back at the end.
-        int powersOfTwo = partToSquare.getLowestSetBit();
-        long bitsToShift = (long) powersOfTwo * exponent;
-        if (bitsToShift > Integer.MAX_VALUE) {
-            reportOverflow();
-        }
-
-        int remainingBits;
-
-        // Factor the powers of two out quickly by shifting right, if needed.
-        if (powersOfTwo > 0) {
-            partToSquare = partToSquare.shiftRight(powersOfTwo);
-            remainingBits = partToSquare.bitLength();
-            if (remainingBits == 1) {  // Nothing left but +/- 1?
-                if (signum < 0 && (exponent & 1) == 1) {
-                    return NEGATIVE_ONE.shiftLeft(powersOfTwo * exponent);
-                } else {
-                    return ONE.shiftLeft(powersOfTwo * exponent);
-                }
-            }
-        } else {
-            remainingBits = partToSquare.bitLength();
-            if (remainingBits == 1) { // Nothing left but +/- 1?
-                if (signum < 0 && (exponent & 1) == 1) {
-                    return NEGATIVE_ONE;
-                } else {
-                    return ONE;
-                }
-            }
-        }
-
-        // This is a quick way to approximate the size of the result,
-        // similar to doing log2[n] * exponent.  This will give an upper bound
-        // of how big the result can be, and which algorithm to use.
-        long scaleFactor = (long) remainingBits * exponent;
-
-        // Use slightly different algorithms for small and large operands.
-        // See if the result will safely fit into a long. (Largest 2^63-1)
-        if (partToSquare.mag.length == 1 && scaleFactor <= 62) {
-            // Small number algorithm.  Everything fits into a long.
-            int newSign = (signum < 0 && (exponent & 1) == 1 ? -1 : 1);
-            long result = 1;
-            long baseToPow2 = partToSquare.mag[0] & LONG_MASK;
-
-            int workingExponent = exponent;
-
-            // Perform exponentiation using repeated squaring trick
-            while (workingExponent != 0) {
-                if ((workingExponent & 1) == 1) {
-                    result = result * baseToPow2;
-                }
-
-                if ((workingExponent >>>= 1) != 0) {
-                    baseToPow2 = baseToPow2 * baseToPow2;
-                }
-            }
-
-            // Multiply back the powers of two (quickly, by shifting left)
-            if (powersOfTwo > 0) {
-                if (bitsToShift + scaleFactor <= 62) { // Fits in long?
-                    return valueOf((result << bitsToShift) * newSign);
-                } else {
-                    return valueOf(result * newSign).shiftLeft((int) bitsToShift);
-                }
-            } else {
-                return valueOf(result * newSign);
-            }
-        } else {
-            // Large number algorithm.  This is basically identical to
-            // the algorithm above, but calls multiply() and square()
-            // which may use more efficient algorithms for large numbers.
-            ByteArray answer = ONE;
-
-            int workingExponent = exponent;
-            // Perform exponentiation using repeated squaring trick
-            while (workingExponent != 0) {
-                if ((workingExponent & 1) == 1) {
-                    answer = answer.multiply(partToSquare);
-                }
-
-                if ((workingExponent >>>= 1) != 0) {
-                    partToSquare = partToSquare.square();
-                }
-            }
-            // Multiply back the (exponentiated) powers of two (quickly,
-            // by shifting left)
-            if (powersOfTwo > 0) {
-                answer = answer.shiftLeft(powersOfTwo * exponent);
-            }
-
-            if (signum < 0 && (exponent & 1) == 1) {
-                return answer.negate();
-            } else {
-                return answer;
-            }
-        }
-    }
+//    /**
+//     * Returns a ByteArray whose value is <tt>(this<sup>exponent</sup>)</tt>.
+//     * Note that {@code exponent} is an integer rather than a ByteArray.
+//     *
+//     * @param exponent exponent to which this ByteArray is to be raised.
+//     * @return <tt>this<sup>exponent</sup></tt>
+//     * @throws ArithmeticException {@code exponent} is negative.  (This would
+//     *                             cause the operation to yield a non-integer value.)
+//     */
+//    public ByteArray pow(int exponent) {
+//        if (exponent < 0) {
+//            throw new ArithmeticException("Negative exponent");
+//        }
+//        if (signum == 0) {
+//            return (exponent == 0 ? ONE : this);
+//        }
+//
+//        ByteArray partToSquare = this.abs();
+//
+//        // Factor out powers of two from the base, as the exponentiation of
+//        // these can be done by left shifts only.
+//        // The remaining part can then be exponentiated faster.  The
+//        // powers of two will be multiplied back at the end.
+//        int powersOfTwo = partToSquare.getLowestSetBit();
+//        long bitsToShift = (long) powersOfTwo * exponent;
+//        if (bitsToShift > Integer.MAX_VALUE) {
+//            reportOverflow();
+//        }
+//
+//        int remainingBits;
+//
+//        // Factor the powers of two out quickly by shifting right, if needed.
+//        if (powersOfTwo > 0) {
+//            partToSquare = partToSquare.shiftRight(powersOfTwo);
+//            remainingBits = partToSquare.bitLength();
+//            if (remainingBits == 1) {  // Nothing left but +/- 1?
+//                if (signum < 0 && (exponent & 1) == 1) {
+//                    return NEGATIVE_ONE.shiftLeft(powersOfTwo * exponent);
+//                } else {
+//                    return ONE.shiftLeft(powersOfTwo * exponent);
+//                }
+//            }
+//        } else {
+//            remainingBits = partToSquare.bitLength();
+//            if (remainingBits == 1) { // Nothing left but +/- 1?
+//                if (signum < 0 && (exponent & 1) == 1) {
+//                    return NEGATIVE_ONE;
+//                } else {
+//                    return ONE;
+//                }
+//            }
+//        }
+//
+//        // This is a quick way to approximate the size of the result,
+//        // similar to doing log2[n] * exponent.  This will give an upper bound
+//        // of how big the result can be, and which algorithm to use.
+//        long scaleFactor = (long) remainingBits * exponent;
+//
+//        // Use slightly different algorithms for small and large operands.
+//        // See if the result will safely fit into a long. (Largest 2^63-1)
+//        if (partToSquare.mag.length == 1 && scaleFactor <= 62) {
+//            // Small number algorithm.  Everything fits into a long.
+//            int newSign = (signum < 0 && (exponent & 1) == 1 ? -1 : 1);
+//            long result = 1;
+//            long baseToPow2 = partToSquare.mag[0] & LONG_MASK;
+//
+//            int workingExponent = exponent;
+//
+//            // Perform exponentiation using repeated squaring trick
+//            while (workingExponent != 0) {
+//                if ((workingExponent & 1) == 1) {
+//                    result = result * baseToPow2;
+//                }
+//
+//                if ((workingExponent >>>= 1) != 0) {
+//                    baseToPow2 = baseToPow2 * baseToPow2;
+//                }
+//            }
+//
+//            // Multiply back the powers of two (quickly, by shifting left)
+//            if (powersOfTwo > 0) {
+//                if (bitsToShift + scaleFactor <= 62) { // Fits in long?
+//                    return valueOf((result << bitsToShift) * newSign);
+//                } else {
+//                    return valueOf(result * newSign).shiftLeft((int) bitsToShift);
+//                }
+//            } else {
+//                return valueOf(result * newSign);
+//            }
+//        } else {
+//            // Large number algorithm.  This is basically identical to
+//            // the algorithm above, but calls multiply() and square()
+//            // which may use more efficient algorithms for large numbers.
+//            ByteArray answer = ONE;
+//
+//            int workingExponent = exponent;
+//            // Perform exponentiation using repeated squaring trick
+//            while (workingExponent != 0) {
+//                if ((workingExponent & 1) == 1) {
+//                    answer = answer.multiply(partToSquare);
+//                }
+//
+//                if ((workingExponent >>>= 1) != 0) {
+//                    partToSquare = partToSquare.square();
+//                }
+//            }
+//            // Multiply back the (exponentiated) powers of two (quickly,
+//            // by shifting left)
+//            if (powersOfTwo > 0) {
+//                answer = answer.shiftLeft(powersOfTwo * exponent);
+//            }
+//
+//            if (signum < 0 && (exponent & 1) == 1) {
+//                return answer.negate();
+//            } else {
+//                return answer;
+//            }
+//        }
+//    }
 
 
     /**
@@ -1823,33 +1807,33 @@ public class ByteArray {
         return 1;
     }
 
-    /**
-     * Returns a ByteArray whose value is (this ** exponent) mod (2**p)
-     */
-    private ByteArray modPow2(ByteArray exponent, int p) {
-        /*
-         * Perform exponentiation using repeated squaring trick, chopping off
-         * high order bits as indicated by modulus.
-         */
-        ByteArray result = ONE;
-        ByteArray baseToPow2 = this.mod2(p);
-        int expOffset = 0;
-
-        int limit = exponent.bitLength();
-
-        if (this.testBit(0))
-            limit = (p - 1) < limit ? (p - 1) : limit;
-
-        while (expOffset < limit) {
-            if (exponent.testBit(expOffset))
-                result = result.multiply(baseToPow2).mod2(p);
-            expOffset++;
-            if (expOffset < limit)
-                baseToPow2 = baseToPow2.square().mod2(p);
-        }
-
-        return result;
-    }
+//    /**
+//     * Returns a ByteArray whose value is (this ** exponent) mod (2**p)
+//     */
+//    private ByteArray modPow2(ByteArray exponent, int p) {
+//        /*
+//         * Perform exponentiation using repeated squaring trick, chopping off
+//         * high order bits as indicated by modulus.
+//         */
+//        ByteArray result = ONE;
+//        ByteArray baseToPow2 = this.mod2(p);
+//        int expOffset = 0;
+//
+//        int limit = exponent.bitLength();
+//
+//        if (this.testBit(0))
+//            limit = (p - 1) < limit ? (p - 1) : limit;
+//
+//        while (expOffset < limit) {
+//            if (exponent.testBit(expOffset))
+//                result = result.multiply(baseToPow2).mod2(p);
+//            expOffset++;
+//            if (expOffset < limit)
+//                baseToPow2 = baseToPow2.square().mod2(p);
+//        }
+//
+//        return result;
+//    }
 
     /**
      * Returns a ByteArray whose value is this mod(2**p).
@@ -2462,35 +2446,6 @@ public class ByteArray {
         return hashCode * signum;
     }
 
-
-    /**
-     * Returns the value radix^(2^exponent) from the cache.
-     * If this value doesn't already exist in the cache, it is added.
-     * <p>
-     * This could be changed to a more complicated caching method using
-     * {@code Future}.
-     */
-    private static ByteArray getRadixConversionCache(int radix, int exponent) {
-        ByteArray[] cacheLine = powerCache[radix]; // volatile read
-        if (exponent < cacheLine.length) {
-            return cacheLine[exponent];
-        }
-
-        int oldLength = cacheLine.length;
-        cacheLine = Arrays.copyOf(cacheLine, exponent + 1);
-        for (int i = oldLength; i <= exponent; i++) {
-            cacheLine[i] = cacheLine[i - 1].pow(2);
-        }
-
-        ByteArray[][] pc = powerCache; // volatile read again
-        if (exponent >= pc[radix].length) {
-            pc = pc.clone();
-            pc[radix] = cacheLine;
-            powerCache = pc; // volatile write, publish
-        }
-        return cacheLine[exponent];
-    }
-
     /* zero[i] is a string of i consecutive zeros. */
     private static String zeros[] = new String[64];
 
@@ -2518,8 +2473,9 @@ public class ByteArray {
      */
     public byte[] toByteArray() {
         int byteLen = bitLength() / 8 + 1;
-        byte[] byteArray = new byte[byteLen];
 
+        byteLen = this.maxByteCount;
+        byte[] byteArray = new byte[byteLen];
         for (int i = byteLen - 1, bytesCopied = 4, nextInt = 0, intIndex = 0; i >= 0; i--) {
             if (bytesCopied == 4) {
                 nextInt = getInt(intIndex++);
@@ -2707,41 +2663,41 @@ public class ByteArray {
 
         return result;
     }
+//
+//    /*
+//     * The following two arrays are used for fast String conversions.  Both
+//     * are indexed by radix.  The first is the number of digits of the given
+//     * radix that can fit in a Java long without "going negative", i.e., the
+//     * highest integer n such that radix**n < 2**63.  The second is the
+//     * "long radix" that tears each number into "long digits", each of which
+//     * consists of the number of digits in the corresponding element in
+//     * digitsPerLong (longRadix[i] = i**digitPerLong[i]).  Both arrays have
+//     * nonsense values in their 0 and 1 elements, as radixes 0 and 1 are not
+//     * used.
+//     */
+//    private static int digitsPerLong[] = {0, 0,
+//            62, 39, 31, 27, 24, 22, 20, 19, 18, 18, 17, 17, 16, 16, 15, 15, 15, 14,
+//            14, 14, 14, 13, 13, 13, 13, 13, 13, 12, 12, 12, 12, 12, 12, 12, 12};
 
-    /*
-     * The following two arrays are used for fast String conversions.  Both
-     * are indexed by radix.  The first is the number of digits of the given
-     * radix that can fit in a Java long without "going negative", i.e., the
-     * highest integer n such that radix**n < 2**63.  The second is the
-     * "long radix" that tears each number into "long digits", each of which
-     * consists of the number of digits in the corresponding element in
-     * digitsPerLong (longRadix[i] = i**digitPerLong[i]).  Both arrays have
-     * nonsense values in their 0 and 1 elements, as radixes 0 and 1 are not
-     * used.
-     */
-    private static int digitsPerLong[] = {0, 0,
-            62, 39, 31, 27, 24, 22, 20, 19, 18, 18, 17, 17, 16, 16, 15, 15, 15, 14,
-            14, 14, 14, 13, 13, 13, 13, 13, 13, 12, 12, 12, 12, 12, 12, 12, 12};
-
-    private static ByteArray longRadix[] = {null, null,
-            valueOf(0x4000000000000000L), valueOf(0x383d9170b85ff80bL),
-            valueOf(0x4000000000000000L), valueOf(0x6765c793fa10079dL),
-            valueOf(0x41c21cb8e1000000L), valueOf(0x3642798750226111L),
-            valueOf(0x1000000000000000L), valueOf(0x12bf307ae81ffd59L),
-            valueOf(0xde0b6b3a7640000L), valueOf(0x4d28cb56c33fa539L),
-            valueOf(0x1eca170c00000000L), valueOf(0x780c7372621bd74dL),
-            valueOf(0x1e39a5057d810000L), valueOf(0x5b27ac993df97701L),
-            valueOf(0x1000000000000000L), valueOf(0x27b95e997e21d9f1L),
-            valueOf(0x5da0e1e53c5c8000L), valueOf(0xb16a458ef403f19L),
-            valueOf(0x16bcc41e90000000L), valueOf(0x2d04b7fdd9c0ef49L),
-            valueOf(0x5658597bcaa24000L), valueOf(0x6feb266931a75b7L),
-            valueOf(0xc29e98000000000L), valueOf(0x14adf4b7320334b9L),
-            valueOf(0x226ed36478bfa000L), valueOf(0x383d9170b85ff80bL),
-            valueOf(0x5a3c23e39c000000L), valueOf(0x4e900abb53e6b71L),
-            valueOf(0x7600ec618141000L), valueOf(0xaee5720ee830681L),
-            valueOf(0x1000000000000000L), valueOf(0x172588ad4f5f0981L),
-            valueOf(0x211e44f7d02c1000L), valueOf(0x2ee56725f06e5c71L),
-            valueOf(0x41c21cb8e1000000L)};
+//    private static ByteArray longRadix[] = {null, null,
+//            valueOf(0x4000000000000000L), valueOf(0x383d9170b85ff80bL),
+//            valueOf(0x4000000000000000L), valueOf(0x6765c793fa10079dL),
+//            valueOf(0x41c21cb8e1000000L), valueOf(0x3642798750226111L),
+//            valueOf(0x1000000000000000L), valueOf(0x12bf307ae81ffd59L),
+//            valueOf(0xde0b6b3a7640000L), valueOf(0x4d28cb56c33fa539L),
+//            valueOf(0x1eca170c00000000L), valueOf(0x780c7372621bd74dL),
+//            valueOf(0x1e39a5057d810000L), valueOf(0x5b27ac993df97701L),
+//            valueOf(0x1000000000000000L), valueOf(0x27b95e997e21d9f1L),
+//            valueOf(0x5da0e1e53c5c8000L), valueOf(0xb16a458ef403f19L),
+//            valueOf(0x16bcc41e90000000L), valueOf(0x2d04b7fdd9c0ef49L),
+//            valueOf(0x5658597bcaa24000L), valueOf(0x6feb266931a75b7L),
+//            valueOf(0xc29e98000000000L), valueOf(0x14adf4b7320334b9L),
+//            valueOf(0x226ed36478bfa000L), valueOf(0x383d9170b85ff80bL),
+//            valueOf(0x5a3c23e39c000000L), valueOf(0x4e900abb53e6b71L),
+//            valueOf(0x7600ec618141000L), valueOf(0xaee5720ee830681L),
+//            valueOf(0x1000000000000000L), valueOf(0x172588ad4f5f0981L),
+//            valueOf(0x211e44f7d02c1000L), valueOf(0x2ee56725f06e5c71L),
+//            valueOf(0x41c21cb8e1000000L)};
 
     /*
      * These two arrays are the integer analogue of above.
