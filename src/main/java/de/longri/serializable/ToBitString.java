@@ -1,6 +1,8 @@
 package de.longri.serializable;
 
 
+import java.util.ArrayList;
+
 /**
  * Created by Longri on 06.11.15.
  */
@@ -9,6 +11,28 @@ public class ToBitString {
     byte[] value = new byte[4];
 
     private short mValue;
+
+    ToBitString(int[] val) {
+
+        ArrayList<Byte> intByteArray = new ArrayList<>();
+
+        for (int i : val) {
+            intByteArray.add((byte) (i >> 24));
+            intByteArray.add((byte) (i >> 16));
+            intByteArray.add((byte) (i >> 8));
+            intByteArray.add((byte) (i));
+        }
+
+        byte[] bytes = new byte[intByteArray.size()];
+
+        int index = 0;
+        for (byte b : intByteArray) {
+            bytes[index++] = b;
+        }
+
+        value = bytes;
+    }
+
 
     ToBitString(byte[] b) {
         value = b;

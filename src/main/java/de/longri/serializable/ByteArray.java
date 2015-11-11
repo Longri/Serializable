@@ -2,8 +2,8 @@ package de.longri.serializable;
 
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Random;
 
 /**
  * Created by Hoepfner on 11.11.2015.
@@ -47,11 +47,11 @@ public class ByteArray {
     private int bitCount;
 
     /**
-     * One plus the bitLength of this ByteArray. Zeros means unitialized.
+     * One plus the internalBitLength of this ByteArray. Zeros means unitialized.
      * (either value is acceptable).
      *
      * @serial
-     * @see #bitLength()
+     * @see #internalBitLength()
      * @deprecated Deprecated since logical value is offset from stored
      * value and correction factor is applied in accessor method.
      */
@@ -179,22 +179,8 @@ public class ByteArray {
      * @throws NumberFormatException {@code val} is zero bytes long.
      */
     public ByteArray(byte[] val) {
-//        if (val.length == 0)
-//            throw new NumberFormatException("Zero length ByteArray");
-//
-//        if (val[0] < 0) {
-//            mag = makePositive(val);
-//            signum = -1;
-//        } else {
-//            mag = stripLeadingZeroBytes(val);
-//            signum = (mag.length == 0 ? 0 : 1);
-//        }
-//        if (mag.length >= MAX_MAG_LENGTH) {
-//            checkRange();
-//        }
-
+        this.maxByteCount = val.length;
         this.mag = stripLeadingZeroBytes(val);
-
         if (this.mag.length == 0) {
             this.signum = 0;
         } else {
@@ -203,9 +189,32 @@ public class ByteArray {
         if (mag.length >= MAX_MAG_LENGTH) {
             checkRange();
         }
-
-
     }
+
+    public ByteArray(int maxByteCount, byte[] val) {
+        this.maxByteCount = maxByteCount;
+        this.mag = stripLeadingZeroBytes(val);
+        if (this.mag.length == 0) {
+            this.signum = 0;
+        } else {
+            this.signum = 1;
+        }
+        if (mag.length >= MAX_MAG_LENGTH) {
+            checkRange();
+        }
+    }
+
+    public ByteArray(short val) {
+        this(2, val);
+    }
+
+    public ByteArray(int byteCount, short val) {
+        this.maxByteCount = byteCount;
+        signum = 1;
+        mag = new int[1];
+        mag[0] = (short) val;
+    }
+
 
     /**
      * This private constructor translates an int array containing the
@@ -229,39 +238,6 @@ public class ByteArray {
         }
     }
 
-    /**
-     * Translates the sign-magnitude representation of a ByteArray into a
-     * ByteArray.  The sign is represented as an integer signum value: -1 for
-     * negative, 0 for zero, or 1 for positive.  The magnitude is a byte array
-     * in <i>big-endian</i> byte-order: the most significant byte is in the
-     * zeroth element.  A zero-length magnitude array is permissible, and will
-     * result in a ByteArray value of 0, whether signum is -1, 0 or 1.
-     *
-     * @param signum    signum of the number (-1 for negative, 0 for zero, 1
-     *                  for positive).
-     * @param magnitude big-endian binary representation of the magnitude of
-     *                  the number.
-     * @throws NumberFormatException {@code signum} is not one of the three
-     *                               legal values (-1, 0, and 1), or {@code signum} is 0 and
-     *                               {@code magnitude} contains one or more non-zero bytes.
-     */
-    public ByteArray(int signum, byte[] magnitude) {
-        this.mag = stripLeadingZeroBytes(magnitude);
-
-        if (signum < -1 || signum > 1)
-            throw (new NumberFormatException("Invalid signum value"));
-
-        if (this.mag.length == 0) {
-            this.signum = 0;
-        } else {
-            if (signum == 0)
-                throw (new NumberFormatException("signum-magnitude mismatch"));
-            this.signum = signum;
-        }
-        if (mag.length >= MAX_MAG_LENGTH) {
-            checkRange();
-        }
-    }
 
     /**
      * A constructor for internal use that translates the sign-magnitude
@@ -287,167 +263,167 @@ public class ByteArray {
         }
     }
 
-    /**
-     * Translates the String representation of a ByteArray in the
-     * specified radix into a ByteArray.  The String representation
-     * consists of an optional minus or plus sign followed by a
-     * sequence of one or more digits in the specified radix.  The
-     * character-to-digit mapping is provided by {@code
-     * Character.digit}.  The String may not contain any extraneous
-     * characters (whitespace, for example).
-     *
-     * @param val   String representation of ByteArray.
-     * @param radix radix to be used in interpreting {@code val}.
-     * @throws NumberFormatException {@code val} is not a valid representation
-     *                               of a ByteArray in the specified radix, or {@code radix} is
-     *                               outside the range from {@link Character#MIN_RADIX} to
-     *                               {@link Character#MAX_RADIX}, inclusive.
-     * @see Character#digit
-     */
-    public ByteArray(String val, int radix) {
-        int cursor = 0, numDigits;
-        final int len = val.length();
-
-        if (radix < Character.MIN_RADIX || radix > Character.MAX_RADIX)
-            throw new NumberFormatException("Radix out of range");
-        if (len == 0)
-            throw new NumberFormatException("Zero length ByteArray");
-
-        // Check for at most one leading sign
-        int sign = 1;
-        int index1 = val.lastIndexOf('-');
-        int index2 = val.lastIndexOf('+');
-        if (index1 >= 0) {
-            if (index1 != 0 || index2 >= 0) {
-                throw new NumberFormatException("Illegal embedded sign character");
-            }
-            sign = -1;
-            cursor = 1;
-        } else if (index2 >= 0) {
-            if (index2 != 0) {
-                throw new NumberFormatException("Illegal embedded sign character");
-            }
-            cursor = 1;
-        }
-        if (cursor == len)
-            throw new NumberFormatException("Zero length ByteArray");
-
-        // Skip leading zeros and compute number of digits in magnitude
-        while (cursor < len &&
-                Character.digit(val.charAt(cursor), radix) == 0) {
-            cursor++;
-        }
-
-        if (cursor == len) {
-            signum = 0;
-            mag = ZERO.mag;
-            return;
-        }
-
-        numDigits = len - cursor;
-        signum = sign;
-
-        // Pre-allocate array of expected size. May be too large but can
-        // never be too small. Typically exact.
-        long numBits = ((numDigits * bitsPerDigit[radix]) >>> 10) + 1;
-        if (numBits + 31 >= (1L << 32)) {
-            reportOverflow();
-        }
-        int numWords = (int) (numBits + 31) >>> 5;
-        int[] magnitude = new int[numWords];
-
-        // Process first (potentially short) digit group
-        int firstGroupLen = numDigits % digitsPerInt[radix];
-        if (firstGroupLen == 0)
-            firstGroupLen = digitsPerInt[radix];
-        String group = val.substring(cursor, cursor += firstGroupLen);
-        magnitude[numWords - 1] = Integer.parseInt(group, radix);
-        if (magnitude[numWords - 1] < 0)
-            throw new NumberFormatException("Illegal digit");
-
-        // Process remaining digit groups
-        int superRadix = intRadix[radix];
-        int groupVal = 0;
-        while (cursor < len) {
-            group = val.substring(cursor, cursor += digitsPerInt[radix]);
-            groupVal = Integer.parseInt(group, radix);
-            if (groupVal < 0)
-                throw new NumberFormatException("Illegal digit");
-            destructiveMulAdd(magnitude, superRadix, groupVal);
-        }
-        // Required for cases where the array was overallocated.
-        mag = trustedStripLeadingZeroInts(magnitude);
-        if (mag.length >= MAX_MAG_LENGTH) {
-            checkRange();
-        }
-    }
-
-    /*
-         * Constructs a new ByteArray using a char array with radix=10.
-         * Sign is precalculated outside and not allowed in the val.
-         */
-    ByteArray(char[] val, int sign, int len) {
-        int cursor = 0, numDigits;
-
-        // Skip leading zeros and compute number of digits in magnitude
-        while (cursor < len && Character.digit(val[cursor], 10) == 0) {
-            cursor++;
-        }
-        if (cursor == len) {
-            signum = 0;
-            mag = ZERO.mag;
-            return;
-        }
-
-        numDigits = len - cursor;
-        signum = sign;
-        // Pre-allocate array of expected size
-        int numWords;
-        if (len < 10) {
-            numWords = 1;
-        } else {
-            long numBits = ((numDigits * bitsPerDigit[10]) >>> 10) + 1;
-            if (numBits + 31 >= (1L << 32)) {
-                reportOverflow();
-            }
-            numWords = (int) (numBits + 31) >>> 5;
-        }
-        int[] magnitude = new int[numWords];
-
-        // Process first (potentially short) digit group
-        int firstGroupLen = numDigits % digitsPerInt[10];
-        if (firstGroupLen == 0)
-            firstGroupLen = digitsPerInt[10];
-        magnitude[numWords - 1] = parseInt(val, cursor, cursor += firstGroupLen);
-
-        // Process remaining digit groups
-        while (cursor < len) {
-            int groupVal = parseInt(val, cursor, cursor += digitsPerInt[10]);
-            destructiveMulAdd(magnitude, intRadix[10], groupVal);
-        }
-        mag = trustedStripLeadingZeroInts(magnitude);
-        if (mag.length >= MAX_MAG_LENGTH) {
-            checkRange();
-        }
-    }
-
-    // Create an integer with the digits between the two indexes
-    // Assumes start < end. The result may be negative, but it
-    // is to be treated as an unsigned value.
-    private int parseInt(char[] source, int start, int end) {
-        int result = Character.digit(source[start++], 10);
-        if (result == -1)
-            throw new NumberFormatException(new String(source));
-
-        for (int index = start; index < end; index++) {
-            int nextVal = Character.digit(source[index], 10);
-            if (nextVal == -1)
-                throw new NumberFormatException(new String(source));
-            result = 10 * result + nextVal;
-        }
-
-        return result;
-    }
+//    /**
+//     * Translates the String representation of a ByteArray in the
+//     * specified radix into a ByteArray.  The String representation
+//     * consists of an optional minus or plus sign followed by a
+//     * sequence of one or more digits in the specified radix.  The
+//     * character-to-digit mapping is provided by {@code
+//     * Character.digit}.  The String may not contain any extraneous
+//     * characters (whitespace, for example).
+//     *
+//     * @param val   String representation of ByteArray.
+//     * @param radix radix to be used in interpreting {@code val}.
+//     * @throws NumberFormatException {@code val} is not a valid representation
+//     *                               of a ByteArray in the specified radix, or {@code radix} is
+//     *                               outside the range from {@link Character#MIN_RADIX} to
+//     *                               {@link Character#MAX_RADIX}, inclusive.
+//     * @see Character#digit
+//     */
+//    public ByteArray(String val, int radix) {
+//        int cursor = 0, numDigits;
+//        final int len = val.length();
+//
+//        if (radix < Character.MIN_RADIX || radix > Character.MAX_RADIX)
+//            throw new NumberFormatException("Radix out of range");
+//        if (len == 0)
+//            throw new NumberFormatException("Zero length ByteArray");
+//
+//        // Check for at most one leading sign
+//        int sign = 1;
+//        int index1 = val.lastIndexOf('-');
+//        int index2 = val.lastIndexOf('+');
+//        if (index1 >= 0) {
+//            if (index1 != 0 || index2 >= 0) {
+//                throw new NumberFormatException("Illegal embedded sign character");
+//            }
+//            sign = -1;
+//            cursor = 1;
+//        } else if (index2 >= 0) {
+//            if (index2 != 0) {
+//                throw new NumberFormatException("Illegal embedded sign character");
+//            }
+//            cursor = 1;
+//        }
+//        if (cursor == len)
+//            throw new NumberFormatException("Zero length ByteArray");
+//
+//        // Skip leading zeros and compute number of digits in magnitude
+//        while (cursor < len &&
+//                Character.digit(val.charAt(cursor), radix) == 0) {
+//            cursor++;
+//        }
+//
+//        if (cursor == len) {
+//            signum = 0;
+//            mag = ZERO.mag;
+//            return;
+//        }
+//
+//        numDigits = len - cursor;
+//        signum = sign;
+//
+//        // Pre-allocate array of expected size. May be too large but can
+//        // never be too small. Typically exact.
+//        long numBits = ((numDigits * bitsPerDigit[radix]) >>> 10) + 1;
+//        if (numBits + 31 >= (1L << 32)) {
+//            reportOverflow();
+//        }
+//        int numWords = (int) (numBits + 31) >>> 5;
+//        int[] magnitude = new int[numWords];
+//
+//        // Process first (potentially short) digit group
+//        int firstGroupLen = numDigits % digitsPerInt[radix];
+//        if (firstGroupLen == 0)
+//            firstGroupLen = digitsPerInt[radix];
+//        String group = val.substring(cursor, cursor += firstGroupLen);
+//        magnitude[numWords - 1] = Integer.parseInt(group, radix);
+//        if (magnitude[numWords - 1] < 0)
+//            throw new NumberFormatException("Illegal digit");
+//
+//        // Process remaining digit groups
+//        int superRadix = intRadix[radix];
+//        int groupVal = 0;
+//        while (cursor < len) {
+//            group = val.substring(cursor, cursor += digitsPerInt[radix]);
+//            groupVal = Integer.parseInt(group, radix);
+//            if (groupVal < 0)
+//                throw new NumberFormatException("Illegal digit");
+//            destructiveMulAdd(magnitude, superRadix, groupVal);
+//        }
+//        // Required for cases where the array was overallocated.
+//        mag = trustedStripLeadingZeroInts(magnitude);
+//        if (mag.length >= MAX_MAG_LENGTH) {
+//            checkRange();
+//        }
+//    }
+//
+//    /*
+//         * Constructs a new ByteArray using a char array with radix=10.
+//         * Sign is precalculated outside and not allowed in the val.
+//         */
+//    ByteArray(char[] val, int sign, int len) {
+//        int cursor = 0, numDigits;
+//
+//        // Skip leading zeros and compute number of digits in magnitude
+//        while (cursor < len && Character.digit(val[cursor], 10) == 0) {
+//            cursor++;
+//        }
+//        if (cursor == len) {
+//            signum = 0;
+//            mag = ZERO.mag;
+//            return;
+//        }
+//
+//        numDigits = len - cursor;
+//        signum = sign;
+//        // Pre-allocate array of expected size
+//        int numWords;
+//        if (len < 10) {
+//            numWords = 1;
+//        } else {
+//            long numBits = ((numDigits * bitsPerDigit[10]) >>> 10) + 1;
+//            if (numBits + 31 >= (1L << 32)) {
+//                reportOverflow();
+//            }
+//            numWords = (int) (numBits + 31) >>> 5;
+//        }
+//        int[] magnitude = new int[numWords];
+//
+//        // Process first (potentially short) digit group
+//        int firstGroupLen = numDigits % digitsPerInt[10];
+//        if (firstGroupLen == 0)
+//            firstGroupLen = digitsPerInt[10];
+//        magnitude[numWords - 1] = parseInt(val, cursor, cursor += firstGroupLen);
+//
+//        // Process remaining digit groups
+//        while (cursor < len) {
+//            int groupVal = parseInt(val, cursor, cursor += digitsPerInt[10]);
+//            destructiveMulAdd(magnitude, intRadix[10], groupVal);
+//        }
+//        mag = trustedStripLeadingZeroInts(magnitude);
+//        if (mag.length >= MAX_MAG_LENGTH) {
+//            checkRange();
+//        }
+//    }
+//
+//    // Create an integer with the digits between the two indexes
+//    // Assumes start < end. The result may be negative, but it
+//    // is to be treated as an unsigned value.
+//    private int parseInt(char[] source, int start, int end) {
+//        int result = Character.digit(source[start++], 10);
+//        if (result == -1)
+//            throw new NumberFormatException(new String(source));
+//
+//        for (int index = start; index < end; index++) {
+//            int nextVal = Character.digit(source[index], 10);
+//            if (nextVal == -1)
+//                throw new NumberFormatException(new String(source));
+//            result = 10 * result + nextVal;
+//        }
+//
+//        return result;
+//    }
 
     // bitsPerDigit in the given radix times 1024
 // Rounded up to avoid underallocation.
@@ -483,70 +459,108 @@ public class ByteArray {
         }
     }
 
-    /**
-     * Translates the decimal String representation of a ByteArray into a
-     * ByteArray.  The String representation consists of an optional minus
-     * sign followed by a sequence of one or more decimal digits.  The
-     * character-to-digit mapping is provided by {@code Character.digit}.
-     * The String may not contain any extraneous characters (whitespace, for
-     * example).
-     *
-     * @param val decimal String representation of ByteArray.
-     * @throws NumberFormatException {@code val} is not a valid representation
-     *                               of a ByteArray.
-     * @see Character#digit
-     */
-    public ByteArray(String val) {
-        this(val, 10);
-    }
+//    /**
+//     * Translates the decimal String representation of a ByteArray into a
+//     * ByteArray.  The String representation consists of an optional minus
+//     * sign followed by a sequence of one or more decimal digits.  The
+//     * character-to-digit mapping is provided by {@code Character.digit}.
+//     * The String may not contain any extraneous characters (whitespace, for
+//     * example).
+//     *
+//     * @param val decimal String representation of ByteArray.
+//     * @throws NumberFormatException {@code val} is not a valid representation
+//     *                               of a ByteArray.
+//     * @see Character#digit
+//     */
+//    public ByteArray(String val) {
+//        this(val, 10);
+//    }
 
-    /**
-     * Constructs a randomly generated ByteArray, uniformly distributed over
-     * the range 0 to (2<sup>{@code numBits}</sup> - 1), inclusive.
-     * The uniformity of the distribution assumes that a fair source of random
-     * bits is provided in {@code rnd}.  Note that this constructor always
-     * constructs a non-negative ByteArray.
-     *
-     * @param numBits maximum bitLength of the new ByteArray.
-     * @param rnd     source of randomness to be used in computing the new
-     *                ByteArray.
-     * @throws IllegalArgumentException {@code numBits} is negative.
-     * @see #bitLength()
-     */
-    public ByteArray(int numBits, Random rnd) {
-        this(1, randomBits(numBits, rnd));
-    }
-
-    private static byte[] randomBits(int numBits, Random rnd) {
-        if (numBits < 0)
-            throw new IllegalArgumentException("numBits must be non-negative");
-        int numBytes = (int) (((long) numBits + 7) / 8); // avoid overflow
-        byte[] randomBits = new byte[numBytes];
-
-        // Generate random bytes and mask out any excess bits
-        if (numBytes > 0) {
-            rnd.nextBytes(randomBits);
-            int excessBits = 8 * numBytes - numBits;
-            randomBits[0] &= (1 << (8 - excessBits)) - 1;
-        }
-        return randomBits;
-    }
-
-
-    // Minimum size in bits that the requested prime number has
-// before we use the large prime number generating algorithms.
-// The cutoff of 95 was chosen empirically for best performance.
-    private static final int SMALL_PRIME_THRESHOLD = 95;
-
-    // Certainty required to meet the spec of probablePrime
-    private static final int DEFAULT_PRIME_CERTAINTY = 100;
+//    /**
+//     * Constructs a randomly generated ByteArray, uniformly distributed over
+//     * the range 0 to (2<sup>{@code numBits}</sup> - 1), inclusive.
+//     * The uniformity of the distribution assumes that a fair source of random
+//     * bits is provided in {@code rnd}.  Note that this constructor always
+//     * constructs a non-negative ByteArray.
+//     *
+//     * @param numBits maximum internalBitLength of the new ByteArray.
+//     * @param rnd     source of randomness to be used in computing the new
+//     *                ByteArray.
+//     * @throws IllegalArgumentException {@code numBits} is negative.
+//     * @see #internalBitLength()
+//     */
+//    public ByteArray(int numBits, Random rnd) {
+//        this(1, randomBits(numBits, rnd));
+//    }
+//
+//    private static byte[] randomBits(int numBits, Random rnd) {
+//        if (numBits < 0)
+//            throw new IllegalArgumentException("numBits must be non-negative");
+//        int numBytes = (int) (((long) numBits + 7) / 8); // avoid overflow
+//        byte[] randomBits = new byte[numBytes];
+//
+//        // Generate random bytes and mask out any excess bits
+//        if (numBytes > 0) {
+//            rnd.nextBytes(randomBits);
+//            int excessBits = 8 * numBytes - numBits;
+//            randomBits[0] &= (1 << (8 - excessBits)) - 1;
+//        }
+//        return randomBits;
+//    }
+//
+//
+//    // Minimum size in bits that the requested prime number has
+//// before we use the large prime number generating algorithms.
+//// The cutoff of 95 was chosen empirically for best performance.
+//    private static final int SMALL_PRIME_THRESHOLD = 95;
+//
+//    // Certainty required to meet the spec of probablePrime
+//    private static final int DEFAULT_PRIME_CERTAINTY = 100;
 
     /**
      * This internal constructor differs from its public cousin
      * with the arguments reversed in two ways: it assumes that its
      * arguments are correct, and it doesn't copy the magnitude array.
      */
-    ByteArray(int[] magnitude, int signum) {
+    ByteArray(int maxByteCount, int[] magnitude, int signum) {
+
+        this.maxByteCount = maxByteCount;
+
+        if (magnitude.length * 4 > maxByteCount) {
+            ArrayList<Byte> intByteArray = new ArrayList<>();
+            for (int i : magnitude) {
+                intByteArray.add((byte) (i >> 24));
+                intByteArray.add((byte) (i >> 16));
+                intByteArray.add((byte) (i >> 8));
+                intByteArray.add((byte) (i));
+            }
+            byte[] bytes = new byte[intByteArray.size()];
+            int index = 0;
+            for (byte b : intByteArray) {
+                bytes[index++] = b;
+            }
+
+            byte[] newArray = Arrays.copyOfRange(bytes, bytes.length - maxByteCount, bytes.length);
+
+            this.signum = (newArray.length == 0 ? 0 : signum);
+            this.mag = stripLeadingZeroBytes(newArray);
+            if (mag.length >= MAX_MAG_LENGTH) {
+                checkRange();
+            }
+        } else {
+            this.signum = (magnitude.length == 0 ? 0 : signum);
+            this.mag = magnitude;
+            if (mag.length >= MAX_MAG_LENGTH) {
+                checkRange();
+            }
+        }
+
+
+    }
+
+    private ByteArray(int[] magnitude, int signum) {
+        this.maxByteCount = magnitude.length * 4;
+
         this.signum = (magnitude.length == 0 ? 0 : signum);
         this.mag = magnitude;
         if (mag.length >= MAX_MAG_LENGTH) {
@@ -583,6 +597,17 @@ public class ByteArray {
     }
 
     //Static Factory Methods
+
+    public ByteArray(int val) {
+        this(4, val);
+    }
+
+    public ByteArray(int byteCount, int val) {
+        this.maxByteCount = byteCount;
+        signum = 1;
+        mag = new int[1];
+        mag[0] = (int) val;
+    }
 
 
     public ByteArray(long val) {
@@ -1067,7 +1092,7 @@ public class ByteArray {
      * evaluating the product.  As it has some overhead, should be used when
      * both numbers are larger than a certain threshold (found
      * experimentally).
-     * <p>
+     * <p/>
      * See:  http://en.wikipedia.org/wiki/Karatsuba_algorithm
      */
     private static ByteArray multiplyKaratsuba(ByteArray x, ByteArray y) {
@@ -1115,13 +1140,13 @@ public class ByteArray {
      * threshold (found experimentally).  This threshold is generally larger
      * than that for Karatsuba multiplication, so this algorithm is generally
      * only used when numbers become significantly larger.
-     * <p>
+     * <p/>
      * The algorithm used is the "optimal" 3-way Toom-Cook algorithm outlined
      * by Marco Bodrato.
-     * <p>
+     * <p/>
      * See: http://bodrato.it/toom-cook/
      * http://bodrato.it/papers/#WAIFI2007
-     * <p>
+     * <p/>
      * "Towards Optimal Toom-Cook Multiplication for Univariate and
      * Multivariate Polynomials in Characteristic 2 and 0." by Marco BODRATO;
      * In C.Carlet and B.Sunar, Eds., "WAIFI'07 proceedings", p. 116-133,
@@ -1517,7 +1542,7 @@ public class ByteArray {
 //        // Factor the powers of two out quickly by shifting right, if needed.
 //        if (powersOfTwo > 0) {
 //            partToSquare = partToSquare.shiftRight(powersOfTwo);
-//            remainingBits = partToSquare.bitLength();
+//            remainingBits = partToSquare.internalBitLength();
 //            if (remainingBits == 1) {  // Nothing left but +/- 1?
 //                if (signum < 0 && (exponent & 1) == 1) {
 //                    return NEGATIVE_ONE.shiftLeft(powersOfTwo * exponent);
@@ -1526,7 +1551,7 @@ public class ByteArray {
 //                }
 //            }
 //        } else {
-//            remainingBits = partToSquare.bitLength();
+//            remainingBits = partToSquare.internalBitLength();
 //            if (remainingBits == 1) { // Nothing left but +/- 1?
 //                if (signum < 0 && (exponent & 1) == 1) {
 //                    return NEGATIVE_ONE;
@@ -1668,7 +1693,7 @@ public class ByteArray {
      * Calculate bitlength of contents of the first len elements an int array,
      * assuming there are no leading zero ints.
      */
-    private static int bitLength(int[] val, int len) {
+    private static int internalBitLength(int[] val, int len) {
         if (len == 0)
             return 0;
         return ((len - 1) << 5) + bitLengthForInt(val[0]);
@@ -1819,7 +1844,7 @@ public class ByteArray {
 //        ByteArray baseToPow2 = this.mod2(p);
 //        int expOffset = 0;
 //
-//        int limit = exponent.bitLength();
+//        int limit = exponent.internalBitLength();
 //
 //        if (this.testBit(0))
 //            limit = (p - 1) < limit ? (p - 1) : limit;
@@ -1840,7 +1865,7 @@ public class ByteArray {
      * Assumes that this {@code ByteArray >= 0} and {@code p > 0}.
      */
     private ByteArray mod2(int p) {
-        if (bitLength() <= p)
+        if (internalBitLength() <= p)
             return this;
 
         // Copy remaining ints of mag
@@ -1872,7 +1897,7 @@ public class ByteArray {
         if (signum == 0)
             return ZERO;
         if (n > 0) {
-            return new ByteArray(shiftLeft(mag, n), signum);
+            return new ByteArray(this.maxByteCount, shiftLeft(mag, n), signum);
         } else if (n == 0) {
             return this;
         } else {
@@ -2220,9 +2245,9 @@ public class ByteArray {
      * @return number of bits in the minimal two's-complement
      * representation of this ByteArray, <i>excluding</i> a sign bit.
      */
-    public int bitLength() {
+    private int internalBitLength() {
         @SuppressWarnings("deprecation") int n = bitLength - 1;
-        if (n == -1) { // bitLength not initialized yet
+        if (n == -1) { // internalBitLength not initialized yet
             int[] m = mag;
             int len = m.length;
             if (len == 0) {
@@ -2463,7 +2488,7 @@ public class ByteArray {
      * <i>big-endian</i> byte-order: the most significant byte is in
      * the zeroth element.  The array will contain the minimum number
      * of bytes required to represent this ByteArray, including at
-     * least one sign bit, which is {@code (ceil((this.bitLength() +
+     * least one sign bit, which is {@code (ceil((this.internalBitLength() +
      * 1)/8))}.  (This representation is compatible with the
      * {@link #ByteArray(byte[]) (byte[])} constructor.)
      *
@@ -2472,7 +2497,7 @@ public class ByteArray {
      * @see #ByteArray(byte[])
      */
     public byte[] toByteArray() {
-        int byteLen = bitLength() / 8 + 1;
+        int byteLen = internalBitLength() / 8 + 1;
 
         byteLen = this.maxByteCount;
         byte[] byteArray = new byte[byteLen];
@@ -2726,7 +2751,7 @@ public class ByteArray {
      * including space for at least one sign bit.
      */
     private int intLength() {
-        return (bitLength() >>> 5) + 1;
+        return (internalBitLength() >>> 5) + 1;
     }
 
     /* Returns sign bit */
@@ -2783,6 +2808,33 @@ public class ByteArray {
      */
     private static final long serialVersionUID = -8287574255936472291L;
 
+    public int bitLength() {
+
+
+        int length = 0;
+
+        int index = -1;
+        for (int i : this.mag) {
+            if (i != 0) {
+                index++;
+            } else break;
+        }
+
+        length = 32 * index;
+
+        //count last bit's
+
+        int count = 0;
+        int v = this.mag[index];
+        while (v != 0) {
+            count++;
+            v = v >>> 1;
+        }
+
+
+        return length + count;
+    }
+
 
     // Support for resetting final fields while deserializing
     private static class UnsafeHolder {
@@ -2827,7 +2879,7 @@ public class ByteArray {
         // The values written for cached fields are compatible with older
         // versions, but are ignored in readObject so don't otherwise matter.
         fields.put("bitCount", -1);
-        fields.put("bitLength", -1);
+        fields.put("internalBitLength", -1);
         fields.put("lowestSetBit", -2);
         fields.put("firstNonzeroByteNum", -2);
 
@@ -2872,7 +2924,7 @@ public class ByteArray {
      * @since 1.8
      */
     public long longValueExact() {
-        if (mag.length <= 2 && bitLength() <= 63)
+        if (mag.length <= 2 && internalBitLength() <= 63)
             return longValue();
         else
             throw new ArithmeticException("ByteArray out of long range");
@@ -2891,7 +2943,7 @@ public class ByteArray {
      * @since 1.8
      */
     public int intValueExact() {
-        if (mag.length <= 1 && bitLength() <= 31)
+        if (mag.length <= 1 && internalBitLength() <= 31)
             return intValue();
         else
             throw new ArithmeticException("ByteArray out of int range");
