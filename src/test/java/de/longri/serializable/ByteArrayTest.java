@@ -13,36 +13,41 @@ public class ByteArrayTest extends TestCase {
     public void testByteArrayConstructors() throws Exception {
 
 
-
         short s = -1;
 
-        ByteArray ba = new ByteArray((short) s);
+        ByteArray ba = new ByteArray(s);
         assertTrue(ba.bitLength() == 16);
         assertTrue(ba.toByteArray().length == 2);
-        assertTrue(ba.intValue() == -1);
+        assertTrue(ba.byteValue() == -1);
+        assertTrue(ba.shortValue() == -1);
+        assertTrue(ba.intValue() == 65535);
 
-        ba = ba.shiftLeft(1);
-        //  assertTrue(ba.bitLength() == 16);
+        ba.shiftLeft(1);
+        assertTrue(ba.bitLength() == 16);
         assertTrue(ba.toByteArray().length == 2);
-        assertTrue(ba.intValue() == -2);
+        assertTrue(ba.byteValue() == -2);
+        assertTrue(ba.shortValue() == -2);
+        assertTrue(ba.intValue() == 65534);
 
         ba = new ByteArray(3, s);
         assertTrue(ba.bitLength() == 16);
         assertTrue(ba.toByteArray().length == 3);
-        assertTrue(ba.intValue() == -1);
-        assertTrue(ba.longValue() == 4294967295L);
+        assertTrue(ba.byteValue() == -1);
+        assertTrue(ba.shortValue() == -1);
+        assertTrue(ba.intValue() == 65535);
 
-        ba = ba.shiftLeft(1);
+        ba.shiftLeft(1);
         assertTrue(ba.bitLength() == 17);
         assertTrue(ba.toByteArray().length == 3);
-        assertTrue(ba.intValue() == -2);
+        assertTrue(ba.shortValue() == -2);
+        assertTrue(ba.intValue() == 131070);
         assertTrue(ba.toByteArray()[0] == 1);
 
 
         ba = new ByteArray(4, s);
         assertTrue(ba.bitLength() == 16);
         assertTrue(ba.toByteArray().length == 4);
-        assertTrue(ba.intValue() == -1);
+        assertTrue(ba.intValue() == 65535);
 
 
         int i = -1;
@@ -52,7 +57,7 @@ public class ByteArrayTest extends TestCase {
         assertTrue(ba.toByteArray().length == 4);
         assertTrue(ba.intValue() == -1);
 
-        ba = ba.shiftLeft(1);
+        ba.shiftLeft(1);
         assertTrue(ba.bitLength() == 32);
         assertTrue(ba.toByteArray().length == 4);
         assertTrue(ba.intValue() == -2);
@@ -63,7 +68,7 @@ public class ByteArrayTest extends TestCase {
         assertTrue(ba.intValue() == -1);
         assertTrue(ba.longValue() == 4294967295L);
 
-        ba = ba.shiftLeft(1);
+        ba.shiftLeft(1);
         assertTrue(ba.bitLength() == 33);
         assertTrue(ba.toByteArray().length == 5);
         assertTrue(ba.intValue() == -2);
@@ -75,7 +80,6 @@ public class ByteArrayTest extends TestCase {
         assertTrue(ba.toByteArray().length == 6);
         assertTrue(ba.intValue() == -1);
 
-
         long l = -1;
 
         ba = new ByteArray(l);
@@ -83,7 +87,7 @@ public class ByteArrayTest extends TestCase {
         assertTrue(ba.toByteArray().length == 8);
         assertTrue(ba.longValue() == -1);
 
-        ba = ba.shiftLeft(1);
+        ba.shiftLeft(1);
         assertTrue(ba.bitLength() == 64);
         assertTrue(ba.toByteArray().length == 8);
         assertTrue(ba.intValue() == -2);
@@ -94,7 +98,7 @@ public class ByteArrayTest extends TestCase {
         assertTrue(ba.toByteArray().length == 9);
         assertTrue(ba.longValue() == -1);
 
-        ba = ba.shiftLeft(1);
+        ba.shiftLeft(1);
         assertTrue(ba.bitLength() == 65);
         assertTrue(ba.toByteArray().length == 9);
         assertTrue(ba.intValue() == -2);

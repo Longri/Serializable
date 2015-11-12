@@ -268,7 +268,7 @@ public class BitStore extends StoreBase {
             // we must nothing write, move only Pointer
         } else {
             //shift the eightBytes to the right pointer
-            nineBytes = nineBytes.shiftLeft((BIT_COUNT_LONG - count) + (8 - pointer._Bit));
+            nineBytes.shiftLeft((BIT_COUNT_LONG - count) + (8 - pointer._Bit));
 
             int byteLengthToWriteBack = nineBytes.bitLength() / 8 + 1;
             byte[] readBuffer = new byte[byteLengthToWriteBack];
@@ -277,31 +277,18 @@ public class BitStore extends StoreBase {
             }
             ByteArray bufferValueByteArray = new ByteArray(readBuffer);
 
-            byte[] b = BigIntegerOR(bufferValueByteArray, nineBytes);
-
-            //write back to Buffer
-            for (int i = 0; i < b.length; i++) {
-                setBufferByte(pointer._Byte + i, b[i]);
-            }
+//            byte[] b = BigIntegerOR(bufferValueByteArray, nineBytes);
+//
+//            //write back to Buffer
+//            for (int i = 0; i < b.length; i++) {
+//                setBufferByte(pointer._Byte + i, b[i]);
+//            }
         }
 
         //move Pointer
         movePointer(count);
     }
 
-    private byte[] BigIntegerOR(ByteArray val, ByteArray val2) {
-
-        byte[] array = val.toByteArray();
-        byte[] array2 = val2.toByteArray();
-
-        byte[] result = new byte[Math.max(array.length, array2.length)];
-        for (int i = 0; i < result.length; i++) {
-            byte b1 = array.length > i ? array[i] : 0;
-            byte b2 = array2.length > i ? array2[i] : 0;
-            result[i] = (byte) (b1 | b2);
-        }
-        return result;
-    }
 
     @Override
     protected void _write(String s) throws NotImplementedException {
@@ -482,46 +469,45 @@ public class BitStore extends StoreBase {
         if (count == 0) count = 64;
 
 
-        ByteArray bufferValueByteArray = new ByteArray(1, new byte[]{
-                getBufferByte(byteBegin), getBufferByte(byteBegin + 1),
-                getBufferByte(byteBegin + 2), getBufferByte(byteBegin + 3),
-                getBufferByte(byteBegin + 4), getBufferByte(byteBegin + 5),
-                getBufferByte(byteBegin + 6), getBufferByte(byteBegin + 7),
-                getBufferByte(byteBegin + 8)
-        });
+//        ByteArray bufferValueByteArray = new ByteArray(1, new byte[]{
+//                getBufferByte(byteBegin), getBufferByte(byteBegin + 1),
+//                getBufferByte(byteBegin + 2), getBufferByte(byteBegin + 3),
+//                getBufferByte(byteBegin + 4), getBufferByte(byteBegin + 5),
+//                getBufferByte(byteBegin + 6), getBufferByte(byteBegin + 7),
+//                getBufferByte(byteBegin + 8)
+//        });
 
 //create Mask
-        int byteBitLength = (bufferValueByteArray.bitLength() / 8 + 1) * 8;
 
-        ByteArray Mask = new ByteArray(1);
-        ByteArray one = new ByteArray(1);
-        for (int i = 0; i < 72 - 1; i++) {
-            Mask = Mask.shiftLeft(1);
-            Mask = Mask.add(one);
-        }
-
-//shift left for pointer
-        bufferValueByteArray = bufferValueByteArray.shiftLeft(bitBegin + STATE_BIT_COUNT_LONG);
-
-//shift out three count bits
-//        bufferValueByteArray = bufferValueByteArray.shiftLeft(STATE_BIT_COUNT_LONG);
-
-// cut pointer
-        bufferValueByteArray = bufferValueByteArray.and(Mask);
-
-//shift right to the first pos
-        bufferValueByteArray = bufferValueByteArray.shiftRight(72 - (count));
-
-        long retValue = bufferValueByteArray.longValue();
-        if (isNegative) {
-            if (retValue == 0) retValue = Long.MIN_VALUE;
-            else
-                retValue = (long) -retValue;
-        }
+//        ByteArray Mask = new ByteArray(1);
+//        ByteArray one = new ByteArray(1);
+//        for (int i = 0; i < 72 - 1; i++) {
+//            Mask = Mask.shiftLeft(1);
+//            Mask = Mask.or(one);
+//        }
+//
+////shift left for pointer
+//        bufferValueByteArray = bufferValueByteArray.shiftLeft(bitBegin + STATE_BIT_COUNT_LONG);
+//
+////shift out three count bits
+////        bufferValueByteArray = bufferValueByteArray.shiftLeft(STATE_BIT_COUNT_LONG);
+//
+//// cut pointer
+//        bufferValueByteArray = bufferValueByteArray.and(Mask);
+//
+////shift right to the first pos
+//        bufferValueByteArray = bufferValueByteArray.shiftRight(72 - (count));
+//
+//        long retValue = bufferValueByteArray.longValue();
+//        if (isNegative) {
+//            if (retValue == 0) retValue = Long.MIN_VALUE;
+//            else
+//                retValue = (long) -retValue;
+//        }
         //move Pointer
         movePointer(count);
 
-        return retValue;
+        return 0l;
     }
 
     @Override
