@@ -234,9 +234,27 @@ public class BitStore extends StoreBase {
         movePointer(count + STATE_BIT_COUNT_INTEGER + 1);
     }
 
+
+    private static class Number {
+        final int pointerMove;
+        final int bitCount;
+
+        Number(int pointerMove, int bitCount) {
+            this.pointerMove = pointerMove;
+            this.bitCount = bitCount;
+        }
+    }
+
+    final static Number LONG = new Number(6, 64);
+
+
     @Override
     protected void _write(long l) throws NotImplementedException {
-        // write one bit vor negative/positive value
+//uebergabe
+
+
+        boolean negative = false;
+
         if (l < 0) {
             write(true);
             if (l == Long.MIN_VALUE) l = 0;
@@ -244,45 +262,54 @@ public class BitStore extends StoreBase {
                 l = -l;
         } else write(false);
 
-        ByteArray nineBytes = new ByteArray(new byte[]{(byte) (l >> 56), (byte) (l >> 48),
-                (byte) (l >> 40), (byte) (l >> 32), (byte) (l >> 24), (byte) (l >> 16), (byte) (l >> 8),
-                (byte) l});
+        byte[] bytes = new byte[]{0, (byte) (l >> 56), (byte) (l >> 48), (byte) (l >> 40),
+                (byte) (l >> 32), (byte) (l >> 24), (byte) (l >> 16), (byte) (l >> 8), (byte) l};
+
+        Number numberType = LONG;
+
+//        #######################################
+
+        // write one bit vor negative/positive value
+        write(negative);
+
+        ByteArray nineBytes = new ByteArray(bytes);
 
         byte count = (byte) nineBytes.bitLength();
         if (count == 0) count = 1;
-        if (count > 63) {
+        if (count >= numberType.bitCount) {
             //don't write, only move Pointer
-            movePointer(6);
+            movePointer(numberType.pointerMove);
         } else {
             //write count bits
-            write((count & Bitmask.BIT_5.value) == Bitmask.BIT_5.value);
-            write((count & Bitmask.BIT_4.value) == Bitmask.BIT_4.value);
-            write((count & Bitmask.BIT_3.value) == Bitmask.BIT_3.value);
+            if (numberType.pointerMove > 5) write((count & Bitmask.BIT_5.value) == Bitmask.BIT_5.value);
+            if (numberType.pointerMove > 4) write((count & Bitmask.BIT_4.value) == Bitmask.BIT_4.value);
+            if (numberType.pointerMove > 3) write((count & Bitmask.BIT_3.value) == Bitmask.BIT_3.value);
             write((count & Bitmask.BIT_2.value) == Bitmask.BIT_2.value);
             write((count & Bitmask.BIT_1.value) == Bitmask.BIT_1.value);
             write((count & Bitmask.BIT_0.value) == Bitmask.BIT_0.value);
         }
 
 
-        if (l == 0) {
+        if (nineBytes.longValue() == 0) {
             // we must nothing write, move only Pointer
         } else {
-            //shift the eightBytes to the right pointer
-            nineBytes.shiftLeft((BIT_COUNT_LONG - count) + (8 - pointer._Bit));
+            //shift to the right pointer
+            nineBytes.shiftLeft(((numberType.bitCount) - count) - pointer._Bit);
 
-            int byteLengthToWriteBack = nineBytes.bitLength() / 8 + 1;
+            int byteLengthToWriteBack = nineBytes.bitLength() / 8;
             byte[] readBuffer = new byte[byteLengthToWriteBack];
             for (int i = 0; i < byteLengthToWriteBack; i++) {
                 readBuffer[i] = getBufferByte(pointer._Byte + i);
             }
             ByteArray bufferValueByteArray = new ByteArray(readBuffer);
+            bufferValueByteArray.or(nineBytes);
 
-//            byte[] b = BigIntegerOR(bufferValueByteArray, nineBytes);
-//
-//            //write back to Buffer
-//            for (int i = 0; i < b.length; i++) {
-//                setBufferByte(pointer._Byte + i, b[i]);
-//            }
+            byte[] b = bufferValueByteArray.toByteArray();
+
+            //write back to Buffer
+            for (int i = 0; i < b.length; i++) {
+                setBufferByte(pointer._Byte + i, b[i]);
+            }
         }
 
         //move Pointer
