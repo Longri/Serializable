@@ -1,4 +1,4 @@
-package de.longri.serializable;  
+package de.longri.serializable;
 
 import java.util.Arrays;
 
@@ -127,7 +127,14 @@ public class ByteArray {
 
     public void shiftLeft(int n) {
 
-        int nb = n / 8; //TODO handle and test shift > 8
+        int nb = n / 8;
+
+        if (nb >= this.fixByteCount) {
+            //can fill with zero bytes
+            Arrays.fill(this.bytes, (byte) 0);
+            return;
+        }
+
         int n1 = (n % 8);
         int n2 = 8 - n1;
 
@@ -142,7 +149,54 @@ public class ByteArray {
         }
         or(new ByteArray(overflow));
 
+        if (nb == 0) return;
+
+        //Byte Shift
+        System.arraycopy(this.bytes, nb, this.bytes, 0, this.bytes.length - nb);
+        //fill zero bytes
+        for (i = this.fixByteCount - 1; i > this.fixByteCount - nb - 1; i--)
+            this.bytes[i] = 0;
+
+
         System.out.print("");
+
+    }
+
+    public void shiftRight(int n) {
+
+        int nb = n / 8;
+        if (nb >= this.fixByteCount) {
+            //can fill with zero bytes
+            Arrays.fill(this.bytes, (byte) 0);
+            return;
+        }
+
+        int n1 = (n % 8);
+        int n2 = 8 - n1;
+
+        byte[] o = Arrays.copyOfRange(this.bytes, 0, this.fixByteCount - 1);
+        byte[] overflow = new byte[o.length + 1];
+        int i = 1;
+        for (byte b : o) overflow[i++] = b;
+
+        i = 0;
+        for (byte b : overflow) {
+            overflow[i++] = (byte) ((b & 0xff) << n2);
+        }
+        i = 0;
+        for (byte b : this.bytes) {
+            this.bytes[i++] = (byte) ((b & 0xff) >>> n1);
+        }
+        or(new ByteArray(overflow));
+
+        if (nb == 0) return;
+
+        //Byte Shift
+        System.arraycopy(this.bytes, 0, this.bytes, nb, this.bytes.length - nb);
+        //fill zero bytes
+        for (i = 0; i < nb; i++)
+            this.bytes[i] = 0;
+
 
     }
 
@@ -181,7 +235,7 @@ public class ByteArray {
         return this.bytes[this.fixByteCount - 1];
     }
 
-    private byte[] groveUp(byte[] array, int newSize) {
+    private static byte[] groveUp(byte[] array, int newSize) {
         byte[] retVal = new byte[newSize];
 
         int index = newSize - array.length;

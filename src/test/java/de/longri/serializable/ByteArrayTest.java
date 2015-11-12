@@ -111,4 +111,60 @@ public class ByteArrayTest extends TestCase {
 
     }
 
+    @Test
+    public void testByteArrayLeftShift() throws Exception {
+
+        int i = -1;
+        ByteArray ba = new ByteArray(i);
+
+        ba.shiftLeft(10);
+        assertTrue(ba.intValue() == -1024);
+
+        ba = new ByteArray(i);
+
+        ba.shiftLeft(20);
+        assertTrue(ba.intValue() == -1048576);
+
+        ba = new ByteArray(i);
+
+        ba.shiftLeft(32);
+        assertTrue(ba.intValue() == 0);
+
+        ba.shiftLeft(48);
+        assertTrue(ba.intValue() == 0);
+
+    }
+
+    @Test
+    public void testByteArrayRightShift() throws Exception {
+
+        int i = Integer.MAX_VALUE;
+
+        ByteArray ba = new ByteArray(i);
+
+        ba.shiftRight(1);
+        assertTrue(ba.intValue() == 1073741823);
+
+
+        ba = new ByteArray(i);
+
+        ba.shiftRight(10);
+        assertTrue(ba.intValue() == 2097151);
+
+        ba = new ByteArray(i);
+
+        ba.shiftRight(20);
+        assertTrue(ba.intValue() == 2047);
+
+        ba = new ByteArray(i);
+
+        ba.shiftRight(32);
+        assertTrue(ba.intValue() == 0);
+
+        ba.shiftRight(48);
+        assertTrue(ba.intValue() == 0);
+
+    }
+
+
 }
