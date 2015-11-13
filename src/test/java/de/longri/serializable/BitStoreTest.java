@@ -132,10 +132,6 @@ public class BitStoreTest {
 
         TestObjectLong obj = new TestObjectLong();
 
-        //  obj.value1 = Long.MAX_VALUE;
-        obj.value1 = 0;
-        obj.value2 = Long.MIN_VALUE + 1;
-
         obj.value1 = -36;
         obj.value2 = 117;
         obj.value3 = 36;

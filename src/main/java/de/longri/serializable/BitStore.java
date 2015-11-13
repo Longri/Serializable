@@ -23,9 +23,12 @@ public class BitStore extends StoreBase {
     private final static int STATE_BIT_MASK_BYTE = 7;
     private final static int STATE_BIT_MASK_SHORT = 15;
     private final static int STATE_BIT_MASK_INTEGER = 31;
-    private final static int STATE_BIT_MASK_LONG = 63;
 
-    private static final int BIT_COUNT_LONG = 64;
+    
+    final static Number LONG = new Number(6, 64, Long.MIN_VALUE);
+    final static Number INTEGER = new Number(5, 32, Integer.MIN_VALUE);
+    final static Number SHORT = new Number(4, 16, Short.MIN_VALUE);
+    final static Number BYTE = new Number(3, 8, Byte.MIN_VALUE);
 
     public enum Bitmask {
         BIT_0((byte) (1 << 0)), BIT_1((byte) (1 << 1)), BIT_2((byte) (1 << 2)), BIT_3((byte) (1 << 3)),
@@ -177,101 +180,97 @@ public class BitStore extends StoreBase {
 
     @Override
     protected void _write(int i) throws NotImplementedException {
-        // write one bit vor negative/positive value
-        if (i < 0) {
-            write(true);
-            if (i == Integer.MIN_VALUE) i = 0;
-            else
-                i = -i;
-        } else write(false);
 
-        long eightBytes = 0;
+        if (false) {
+            boolean negative = false;
+            if (i < 0) {
+                negative = true;
+                if (i == Integer.MIN_VALUE) i = 0;
+                else
+                    i = -i;
+            }
+            byte[] bytes = new byte[]{0, (byte) (i >> 24), (byte) (i >> 16), (byte) (i >> 8), (byte) i};
+            writeValue(negative, bytes, INTEGER);
 
-        int v = i;
-        int count = 1;
-        while (true) {
-            v = v >>> 1;
-            if (v == 0 | v == -1) break;
-            count++;
+        } else {
+            // write one bit vor negative/positive value
+            if (i < 0) {
+                write(true);
+                if (i == Integer.MIN_VALUE) i = 0;
+                else
+                    i = -i;
+            } else write(false);
+
+            long eightBytes = 0;
+
+            int v = i;
+            int count = 1;
+            while (true) {
+                v = v >>> 1;
+                if (v == 0 | v == -1) break;
+                count++;
+            }
+
+            //write count bits
+            eightBytes = (long) count;
+
+            //shift to have place for bit's
+            eightBytes = eightBytes << count;
+
+            //write bit's
+            eightBytes = eightBytes | (i & MASK_32bit);
+
+            //get eight Bytes from buffer and put they into a Short
+            long bufferValue = (getBufferByte(pointer._Byte) & 0xffL) << 56
+                    | (getBufferByte(pointer._Byte + 1) & 0xffL) << 48
+                    | (getBufferByte(pointer._Byte + 2) & 0xffL) << 40
+                    | (getBufferByte(pointer._Byte + 3) & 0xffL) << 32
+                    | (getBufferByte(pointer._Byte + 4) & 0xffL) << 24
+                    | (getBufferByte(pointer._Byte + 5) & 0xffL) << 16
+                    | (getBufferByte(pointer._Byte + 6) & 0xffL) << 8
+                    | (getBufferByte(pointer._Byte + 7) & 0xffL);
+
+
+            //shift the eightBytes to the right pointer
+            eightBytes = ((eightBytes << ((64 - (STATE_BIT_COUNT_INTEGER + count)) - pointer._Bit)));
+
+            eightBytes = (eightBytes | bufferValue);
+
+            //write back to Buffer
+            setBufferByte(pointer._Byte, (byte) (eightBytes >> 56));
+            setBufferByte(pointer._Byte + 1, (byte) (eightBytes >> 48));
+            setBufferByte(pointer._Byte + 2, (byte) (eightBytes >> 40));
+            setBufferByte(pointer._Byte + 3, (byte) (eightBytes >> 32));
+            setBufferByte(pointer._Byte + 4, (byte) (eightBytes >> 24));
+            setBufferByte(pointer._Byte + 5, (byte) (eightBytes >> 16));
+            setBufferByte(pointer._Byte + 6, (byte) (eightBytes >> 8));
+            setBufferByte(pointer._Byte + 7, (byte) eightBytes);
+
+            //move Pointer
+            movePointer(count + STATE_BIT_COUNT_INTEGER + 1);
         }
-
-        //write count bits
-        eightBytes = (long) count;
-
-        //shift to have place for bit's
-        eightBytes = eightBytes << count;
-
-        //write bit's
-        eightBytes = eightBytes | (i & MASK_32bit);
-
-        //get eight Bytes from buffer and put they into a Short
-        long bufferValue = (getBufferByte(pointer._Byte) & 0xffL) << 56
-                | (getBufferByte(pointer._Byte + 1) & 0xffL) << 48
-                | (getBufferByte(pointer._Byte + 2) & 0xffL) << 40
-                | (getBufferByte(pointer._Byte + 3) & 0xffL) << 32
-                | (getBufferByte(pointer._Byte + 4) & 0xffL) << 24
-                | (getBufferByte(pointer._Byte + 5) & 0xffL) << 16
-                | (getBufferByte(pointer._Byte + 6) & 0xffL) << 8
-                | (getBufferByte(pointer._Byte + 7) & 0xffL);
-
-
-        //shift the eightBytes to the right pointer
-        eightBytes = ((eightBytes << ((64 - (STATE_BIT_COUNT_INTEGER + count)) - pointer._Bit)));
-
-        eightBytes = (eightBytes | bufferValue);
-
-        //write back to Buffer
-        setBufferByte(pointer._Byte, (byte) (eightBytes >> 56));
-        setBufferByte(pointer._Byte + 1, (byte) (eightBytes >> 48));
-        setBufferByte(pointer._Byte + 2, (byte) (eightBytes >> 40));
-        setBufferByte(pointer._Byte + 3, (byte) (eightBytes >> 32));
-        setBufferByte(pointer._Byte + 4, (byte) (eightBytes >> 24));
-        setBufferByte(pointer._Byte + 5, (byte) (eightBytes >> 16));
-        setBufferByte(pointer._Byte + 6, (byte) (eightBytes >> 8));
-        setBufferByte(pointer._Byte + 7, (byte) eightBytes);
-
-        //move Pointer
-        movePointer(count + STATE_BIT_COUNT_INTEGER + 1);
     }
-
-
-    private static class Number {
-        final int pointerMove;
-        final int bitCount;
-
-        Number(int pointerMove, int bitCount) {
-            this.pointerMove = pointerMove;
-            this.bitCount = bitCount;
-        }
-    }
-
-    final static Number LONG = new Number(6, 64);
 
 
     @Override
     protected void _write(long l) throws NotImplementedException {
-//uebergabe
-
-
         boolean negative = false;
-
         if (l < 0) {
-            write(true);
+            negative = true;
             if (l == Long.MIN_VALUE) l = 0;
             else
                 l = -l;
-        } else write(false);
+        }
 
         byte[] bytes = new byte[]{0, (byte) (l >> 56), (byte) (l >> 48), (byte) (l >> 40),
                 (byte) (l >> 32), (byte) (l >> 24), (byte) (l >> 16), (byte) (l >> 8), (byte) l};
 
-        Number numberType = LONG;
+        writeValue(negative, bytes, LONG);
+    }
 
-//        #######################################
-
+    private void writeValue(boolean negative, byte[] bytes, Number numberType) throws NotImplementedException {
         // write one bit vor negative/positive value
         write(negative);
-
         ByteArray nineBytes = new ByteArray(bytes);
 
         byte count = (byte) nineBytes.bitLength();
@@ -294,9 +293,9 @@ public class BitStore extends StoreBase {
             // we must nothing write, move only Pointer
         } else {
             //shift to the right pointer
-            nineBytes.shiftLeft(((numberType.bitCount) - count) - pointer._Bit);
+            nineBytes.shiftLeft(((numberType.bitCount + 8) - count) - pointer._Bit);
 
-            int byteLengthToWriteBack = nineBytes.bitLength() / 8;
+            int byteLengthToWriteBack = (nineBytes.bitLength() / 8) + 1;
             byte[] readBuffer = new byte[byteLengthToWriteBack];
             for (int i = 0; i < byteLengthToWriteBack; i++) {
                 readBuffer[i] = getBufferByte(pointer._Byte + i);
@@ -465,6 +464,10 @@ public class BitStore extends StoreBase {
 
     @Override
     public long readLong() throws NotImplementedException {
+        return readValue(LONG);
+    }
+
+    private long readValue(Number numberType) throws NotImplementedException {
         // read if Negative value
         boolean isNegative = readBool();
 
@@ -474,14 +477,20 @@ public class BitStore extends StoreBase {
         int byteBegin = pointer._Byte;
         int bitBegin = pointer._Bit;
 
-        if (readBool()) count |= Bitmask.BIT_5.value;
-        else count &= ~Bitmask.BIT_5.value;
+        if (numberType.pointerMove > 5) {
+            if (readBool()) count |= Bitmask.BIT_5.value;
+            else count &= ~Bitmask.BIT_5.value;
+        }
 
-        if (readBool()) count |= Bitmask.BIT_4.value;
-        else count &= ~Bitmask.BIT_4.value;
+        if (numberType.pointerMove > 4) {
+            if (readBool()) count |= Bitmask.BIT_4.value;
+            else count &= ~Bitmask.BIT_4.value;
+        }
 
-        if (readBool()) count |= Bitmask.BIT_3.value;
-        else count &= ~Bitmask.BIT_3.value;
+        if (numberType.pointerMove > 3) {
+            if (readBool()) count |= Bitmask.BIT_3.value;
+            else count &= ~Bitmask.BIT_3.value;
+        }
 
         if (readBool()) count |= Bitmask.BIT_2.value;
         else count &= ~Bitmask.BIT_2.value;
@@ -493,48 +502,33 @@ public class BitStore extends StoreBase {
         else count &= ~Bitmask.BIT_0.value;
 
 
-        if (count == 0) count = 64;
+        if (count == 0) count = (byte) numberType.bitCount;
 
 
-//        ByteArray bufferValueByteArray = new ByteArray(1, new byte[]{
-//                getBufferByte(byteBegin), getBufferByte(byteBegin + 1),
-//                getBufferByte(byteBegin + 2), getBufferByte(byteBegin + 3),
-//                getBufferByte(byteBegin + 4), getBufferByte(byteBegin + 5),
-//                getBufferByte(byteBegin + 6), getBufferByte(byteBegin + 7),
-//                getBufferByte(byteBegin + 8)
-//        });
+        int readByteArrayLength = ((count + numberType.pointerMove) / 8) + 2;
+        byte[] ba = new byte[readByteArrayLength];
 
-//create Mask
+        for (int i = 0; i < readByteArrayLength; i++) {
+            ba[i] = getBufferByte(byteBegin + i);
+        }
 
-//        ByteArray Mask = new ByteArray(1);
-//        ByteArray one = new ByteArray(1);
-//        for (int i = 0; i < 72 - 1; i++) {
-//            Mask = Mask.shiftLeft(1);
-//            Mask = Mask.or(one);
-//        }
-//
-////shift left for pointer
-//        bufferValueByteArray = bufferValueByteArray.shiftLeft(bitBegin + STATE_BIT_COUNT_LONG);
-//
-////shift out three count bits
-////        bufferValueByteArray = bufferValueByteArray.shiftLeft(STATE_BIT_COUNT_LONG);
-//
-//// cut pointer
-//        bufferValueByteArray = bufferValueByteArray.and(Mask);
-//
-////shift right to the first pos
-//        bufferValueByteArray = bufferValueByteArray.shiftRight(72 - (count));
-//
-//        long retValue = bufferValueByteArray.longValue();
-//        if (isNegative) {
-//            if (retValue == 0) retValue = Long.MIN_VALUE;
-//            else
-//                retValue = (long) -retValue;
-//        }
+        ByteArray bufferValueByteArray = new ByteArray(ba);
+
+//shift left for pointer
+        bufferValueByteArray.shiftLeft(bitBegin + numberType.pointerMove);
+
+//shift right to the first pos
+        bufferValueByteArray.shiftRight(readByteArrayLength * 8 - (count));
+
+        long retValue = bufferValueByteArray.longValue();
+        if (isNegative) {
+            if (retValue == 0) retValue = numberType.minValue;
+            else
+                retValue = (long) -retValue;
+        }
         //move Pointer
         movePointer(count);
-
-        return 0l;
+        return retValue;
     }
 
     @Override
@@ -588,4 +582,17 @@ public class BitStore extends StoreBase {
         if (byteIndex >= buffer.length) return;
         buffer[byteIndex] = _byte;
     }
+
+    private static class Number {
+        final int pointerMove;
+        final int bitCount;
+        final long minValue;
+
+        Number(int pointerMove, int bitCount, long minValue) {
+            this.pointerMove = pointerMove;
+            this.bitCount = bitCount;
+            this.minValue = minValue;
+        }
+    }
+
 }
