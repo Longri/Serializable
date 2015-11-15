@@ -9,7 +9,7 @@ public class BitStore extends StoreBase {
     final static Number LONG = new Number(true, 6, 64, Long.MIN_VALUE);
     final static Number INTEGER = new Number(true, 5, 32, Integer.MIN_VALUE);
     final static Number SHORT = new Number(true, 4, 16, Short.MIN_VALUE);
-    final static Number BYTE = new Number(false, 3, 8, Byte.MIN_VALUE);
+    final static int ADDITIONAL_STRING_VALUE = 32;
 
     public enum Bitmask {
         BIT_0((byte) (1 << 0)), BIT_1((byte) (1 << 1)), BIT_2((byte) (1 << 2)), BIT_3((byte) (1 << 3)),
@@ -61,29 +61,19 @@ public class BitStore extends StoreBase {
     @Override
     protected void _write(Byte b) throws NotImplementedException {
 
-        if (b > 31 || b < 0) {
-            write(true);
-            // write as full byte
-            write((b & Bitmask.BIT_7.value) == Bitmask.BIT_7.value);
-            write((b & Bitmask.BIT_6.value) == Bitmask.BIT_6.value);
-            write((b & Bitmask.BIT_5.value) == Bitmask.BIT_5.value);
-            write((b & Bitmask.BIT_4.value) == Bitmask.BIT_4.value);
-            write((b & Bitmask.BIT_3.value) == Bitmask.BIT_3.value);
-            write((b & Bitmask.BIT_2.value) == Bitmask.BIT_2.value);
-            write((b & Bitmask.BIT_1.value) == Bitmask.BIT_1.value);
-            write((b & Bitmask.BIT_0.value) == Bitmask.BIT_0.value);
-            return;
-        }
-        write(false);
-        boolean negative = false;
-        if (b < 0) {
-            negative = true;
-            if (b == Short.MIN_VALUE) b = 0;
-            else
-                b = (byte) -b;
-        }
-        byte[] bytes = new byte[]{0, b};
-        writeValue(negative, bytes, BYTE);
+        boolean state = b > 15 || b < 0;
+        if (state) write(true);
+        else write(false);
+
+
+        if (state) write((b & Bitmask.BIT_7.value) == Bitmask.BIT_7.value);
+        if (state) write((b & Bitmask.BIT_6.value) == Bitmask.BIT_6.value);
+        if (state) write((b & Bitmask.BIT_5.value) == Bitmask.BIT_5.value);
+        if (state) write((b & Bitmask.BIT_4.value) == Bitmask.BIT_4.value);
+        write((b & Bitmask.BIT_3.value) == Bitmask.BIT_3.value);
+        write((b & Bitmask.BIT_2.value) == Bitmask.BIT_2.value);
+        write((b & Bitmask.BIT_1.value) == Bitmask.BIT_1.value);
+        write((b & Bitmask.BIT_0.value) == Bitmask.BIT_0.value);
     }
 
 
@@ -195,29 +185,27 @@ public class BitStore extends StoreBase {
         //Check store as Byte, Short or Integer
         boolean mustInt = false;
         boolean mustShort = false;
-        byte additionalValue = Byte.MAX_VALUE;
         for (int i : casAsInt) {
             if (i > Byte.MAX_VALUE) mustShort = true;
             if (i > Short.MAX_VALUE) mustInt = true;
-            if (i < additionalValue) additionalValue = (byte) i;
         }
 
         write(mustInt);
         write(mustShort);
-        write(additionalValue);
+        //write(ADDITIONAL_STRING_VALUE);
         write(length);
 
         for (int i : casAsInt) {
             if (mustInt) {
-                write(i - additionalValue);
+                write(i - ADDITIONAL_STRING_VALUE);
             } else if (mustShort) {
-                write((short) (i - additionalValue));
+                write((short) (i - ADDITIONAL_STRING_VALUE));
             } else {
-                write((byte) (i - additionalValue));
+                write((byte) (i - ADDITIONAL_STRING_VALUE));
             }
         }
 
-        System.out.print("");
+        //System.out.print("Additional Value = " + ADDITIONAL_STRING_VALUE);
 
     }
 
@@ -231,38 +219,78 @@ public class BitStore extends StoreBase {
 
     @Override
     public byte readByte() throws NotImplementedException {
-        if (readBool()) {
-            //read full 8 bits
 
-            byte b = 0;
+        boolean state = readBool();
+
+
+        byte b = 0;
+        if (state) {
             if (readBool()) b |= Bitmask.BIT_7.value;
             else b &= ~Bitmask.BIT_7.value;
+        }
 
+        if (state) {
             if (readBool()) b |= Bitmask.BIT_6.value;
             else b &= ~Bitmask.BIT_6.value;
+        }
 
+        if (state) {
             if (readBool()) b |= Bitmask.BIT_5.value;
             else b &= ~Bitmask.BIT_5.value;
+        }
 
+        if (state) {
             if (readBool()) b |= Bitmask.BIT_4.value;
             else b &= ~Bitmask.BIT_4.value;
-
-            if (readBool()) b |= Bitmask.BIT_3.value;
-            else b &= ~Bitmask.BIT_3.value;
-
-            if (readBool()) b |= Bitmask.BIT_2.value;
-            else b &= ~Bitmask.BIT_2.value;
-
-            if (readBool()) b |= Bitmask.BIT_1.value;
-            else b &= ~Bitmask.BIT_1.value;
-
-            if (readBool()) b |= Bitmask.BIT_0.value;
-            else b &= ~Bitmask.BIT_0.value;
-
-            return b;
         }
-        
-        return (byte) readValue(BYTE);
+
+        if (readBool()) b |= Bitmask.BIT_3.value;
+        else b &= ~Bitmask.BIT_3.value;
+
+        if (readBool()) b |= Bitmask.BIT_2.value;
+        else b &= ~Bitmask.BIT_2.value;
+
+        if (readBool()) b |= Bitmask.BIT_1.value;
+        else b &= ~Bitmask.BIT_1.value;
+
+        if (readBool()) b |= Bitmask.BIT_0.value;
+        else b &= ~Bitmask.BIT_0.value;
+
+        return b;
+
+//
+//        if (readBool()) {
+//            //read full 8 bits
+//
+//            byte b = 0;
+//            if (readBool()) b |= Bitmask.BIT_7.value;
+//            else b &= ~Bitmask.BIT_7.value;
+//
+//            if (readBool()) b |= Bitmask.BIT_6.value;
+//            else b &= ~Bitmask.BIT_6.value;
+//
+//            if (readBool()) b |= Bitmask.BIT_5.value;
+//            else b &= ~Bitmask.BIT_5.value;
+//
+//            if (readBool()) b |= Bitmask.BIT_4.value;
+//            else b &= ~Bitmask.BIT_4.value;
+//
+//            if (readBool()) b |= Bitmask.BIT_3.value;
+//            else b &= ~Bitmask.BIT_3.value;
+//
+//            if (readBool()) b |= Bitmask.BIT_2.value;
+//            else b &= ~Bitmask.BIT_2.value;
+//
+//            if (readBool()) b |= Bitmask.BIT_1.value;
+//            else b &= ~Bitmask.BIT_1.value;
+//
+//            if (readBool()) b |= Bitmask.BIT_0.value;
+//            else b &= ~Bitmask.BIT_0.value;
+//
+//            return b;
+//        }
+//
+//        return (byte) readValue(BYTE);
     }
 
     @Override
@@ -349,19 +377,18 @@ public class BitStore extends StoreBase {
     public String readString() throws NotImplementedException {
         boolean mustInt = readBool();
         boolean mustShort = readBool();
-        byte additionalValue = readByte();
         int length = readInt();
 
         char[] cars = new char[length];
 
         for (int i = 0; i < length; i++) {
             if (mustInt) {
-                cars[i] = (char) (readInt() + additionalValue);
+                cars[i] = (char) (readInt() + ADDITIONAL_STRING_VALUE);
             } else if (mustShort) {
-                cars[i] = (char) (readShort() + additionalValue);
+                cars[i] = (char) (readShort() + ADDITIONAL_STRING_VALUE);
             } else {
                 byte b = readByte();
-                cars[i] = (char) (b + additionalValue);
+                cars[i] = (char) (b + ADDITIONAL_STRING_VALUE);
             }
         }
         String ret = String.copyValueOf(cars);
