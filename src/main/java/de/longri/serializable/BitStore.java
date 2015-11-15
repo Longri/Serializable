@@ -6,10 +6,10 @@ package de.longri.serializable;
  */
 public class BitStore extends StoreBase {
 
-    final static Number LONG = new Number(6, 64, Long.MIN_VALUE);
-    final static Number INTEGER = new Number(5, 32, Integer.MIN_VALUE);
-    final static Number SHORT = new Number(4, 16, Short.MIN_VALUE);
-    final static Number BYTE = new Number(3, 8, Byte.MIN_VALUE);
+    final static Number LONG = new Number(true, 6, 64, Long.MIN_VALUE);
+    final static Number INTEGER = new Number(true, 5, 32, Integer.MIN_VALUE);
+    final static Number SHORT = new Number(true, 4, 16, Short.MIN_VALUE);
+    final static Number BYTE = new Number(false, 3, 8, Byte.MIN_VALUE);
 
     public enum Bitmask {
         BIT_0((byte) (1 << 0)), BIT_1((byte) (1 << 1)), BIT_2((byte) (1 << 2)), BIT_3((byte) (1 << 3)),
@@ -132,7 +132,7 @@ public class BitStore extends StoreBase {
 
     private void writeValue(boolean negative, byte[] bytes, Number numberType) throws NotImplementedException {
         // write one bit vor negative/positive value
-        write(negative);
+        if (numberType.writeNegative) write(negative);
         ByteArray nineBytes = new ByteArray(bytes);
 
         byte count = (byte) nineBytes.bitLength();
@@ -261,8 +261,7 @@ public class BitStore extends StoreBase {
 
             return b;
         }
-
-
+        
         return (byte) readValue(BYTE);
     }
 
@@ -283,7 +282,7 @@ public class BitStore extends StoreBase {
 
     private long readValue(Number numberType) throws NotImplementedException {
         // read if Negative value
-        boolean isNegative = readBool();
+        boolean isNegative = numberType.writeNegative ? readBool() : false;
 
         //read count
         byte count = 0;
@@ -415,11 +414,13 @@ public class BitStore extends StoreBase {
         final int pointerMove;
         final int bitCount;
         final long minValue;
+        final boolean writeNegative;
 
-        Number(int pointerMove, int bitCount, long minValue) {
+        Number(boolean writeNegative, int pointerMove, int bitCount, long minValue) {
             this.pointerMove = pointerMove;
             this.bitCount = bitCount;
             this.minValue = minValue;
+            this.writeNegative = writeNegative;
         }
     }
 
