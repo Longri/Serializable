@@ -6,7 +6,7 @@ import java.util.ArrayList;
 /**
  * Created by Longri on 04.11.15.
  */
-public class SerializableArrayList<T extends Serializable> extends Serializable {
+public class SerializableArrayList<T extends Serializable> implements Serializable {
 
     private ArrayList<T> list = new ArrayList<T>();
     private final Class<T> tClass;

@@ -3,7 +3,7 @@ package de.longri.serializable;
 /**
  * Created by Longri on 03.11.15.
  */
-public class ListObject extends Serializable {
+public class ListObject implements Serializable {
 
     protected BooleanStore booleanStore = new BooleanStore();
 

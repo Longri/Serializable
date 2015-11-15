@@ -3,7 +3,7 @@ package de.longri.serializable;
 /**
  * Created by Longri on 03.11.15.
  */
-public class TestObjectByte extends Serializable {
+public class TestObjectByte implements Serializable {
 
     protected byte value1 = 0;
     protected byte value2 = 0;

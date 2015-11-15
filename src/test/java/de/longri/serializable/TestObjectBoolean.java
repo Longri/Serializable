@@ -3,7 +3,7 @@ package de.longri.serializable;
 /**
  * Created by Longri on 03.11.15.
  */
-public class TestObjectBoolean extends Serializable {
+public class TestObjectBoolean implements Serializable {
 
     protected boolean value1;
     protected boolean value2;

@@ -3,7 +3,7 @@ package de.longri.serializable;
 /**
  * Created by Longri on 03.11.15.
  */
-public class TestObjectString extends Serializable {
+public class TestObjectString implements Serializable {
 
     protected String value1 = "";
     protected String value2 = "";
