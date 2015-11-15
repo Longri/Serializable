@@ -51,7 +51,7 @@ public abstract class StoreBase {
 
     public abstract String readString() throws NotImplementedException;
 
-    public abstract <T extends Serializable> ArrayList<T> readList(Class<T> tClass) throws NotImplementedException;
+
 
 
 /*---------- public method's --------------*/
@@ -102,6 +102,27 @@ public abstract class StoreBase {
     public final byte[] getArray() throws NotImplementedException {
         trimToSize();
         return buffer;
+    }
+
+    public  <T extends Serializable> ArrayList<T> readList(Class<T> tClass) throws NotImplementedException{
+        ArrayList<T> list = new ArrayList<T>();
+        int size = readInt();
+        for (int i = 0; i < size; i++) {
+
+            try {
+                T t = tClass.newInstance();
+                t.deserialize(this);
+                list.add(t);
+            } catch (InstantiationException e) {
+                e.printStackTrace();
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            } catch (NotImplementedException e) {
+                e.printStackTrace();
+            }
+
+        }
+        return list;
     }
 
 /*---------- method's for handle byte array --------------*/

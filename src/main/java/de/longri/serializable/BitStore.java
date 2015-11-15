@@ -1,8 +1,5 @@
 package de.longri.serializable;
 
-import java.util.ArrayList;
-
-
 /**
  * Created by Longri on 05.11.15.
  */
@@ -266,12 +263,6 @@ public class BitStore extends StoreBase {
     public String readString() throws NotImplementedException {
         throw new NotImplementedException("Read String not implemented from \"BitStore\"");
     }
-
-    @Override
-    public <T extends Serializable> ArrayList<T> readList(Class<T> tClass) throws NotImplementedException {
-        throw new NotImplementedException("Read List not implemented from \"BitStore\"");
-    }
-
 
     private Bitmask getBitmask() {
         Bitmask bit = Bitmask.BIT_7;

@@ -1,7 +1,6 @@
 package de.longri.serializable;
 
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
 
 /**
  * Created by Longri on 05.11.15.
@@ -96,34 +95,6 @@ public class NormalStore extends StoreBase {
         }
         return null;
     }
-
-    @Override
-    public <T extends Serializable> ArrayList<T> readList(Class<T> tClass) {
-
-        // TODO try to use same in BitStore and if ok, implement that in StoreBase
-
-        ArrayList<T> list = new ArrayList<T>();
-
-        int size = readInt();
-
-        for (int i = 0; i < size; i++) {
-
-            try {
-                T t = tClass.newInstance();
-                t.deserialize(this);
-                list.add(t);
-            } catch (InstantiationException e) {
-                e.printStackTrace();
-            } catch (IllegalAccessException e) {
-                e.printStackTrace();
-            } catch (NotImplementedException e) {
-                e.printStackTrace();
-            }
-
-        }
-        return list;
-    }
-
 
     private void add(byte[] bytes) {
         for (byte b : bytes) {
