@@ -241,4 +241,31 @@ public class BitStoreTest {
 
     }
 
+
+    @Test
+    public void testString() throws Exception {
+
+        TestObjectString obj = new TestObjectString();
+        obj.value1 = "Test";
+        obj.value2 = "Object";
+        obj.value3 = "String";
+        obj.value4 = "Test Object String";
+        obj.value5 = "";
+        obj.value6 = "Java is a general-purpose computer programming language that is concurrent, class-based, object-oriented, and specifically designed to have as few implementation dependencies as possible.";
+        obj.value7 = "It is intended to let application developers \"write once, run anywhere\" (WORA), meaning that compiled Java code can run on all platforms that support Java without the need for recompilation.";
+        obj.value8 = "";
+        obj.value9 = "";
+        obj.value10 = "Serialize";
+
+        TestObjectString obj2 = new TestObjectString();
+
+        BitStore writer = new BitStore();
+        obj.serialize(writer);
+        obj2.deserialize(new BitStore(writer.getArray()));
+
+        System.out.println("BitStore-String: " + writer.getArray().length + " Bytes!");
+
+        assertEquals(obj, obj2);
+    }
+
 }

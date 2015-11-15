@@ -1,5 +1,6 @@
 package de.longri.serializable;
 
+
 /**
  * Created by Longri on 05.11.15.
  */
@@ -58,7 +59,22 @@ public class BitStore extends StoreBase {
 
 
     @Override
-    protected void _write(byte b) throws NotImplementedException {
+    protected void _write(Byte b) throws NotImplementedException {
+
+        if (b > 31 || b < 0) {
+            write(true);
+            // write as full byte
+            write((b & Bitmask.BIT_7.value) == Bitmask.BIT_7.value);
+            write((b & Bitmask.BIT_6.value) == Bitmask.BIT_6.value);
+            write((b & Bitmask.BIT_5.value) == Bitmask.BIT_5.value);
+            write((b & Bitmask.BIT_4.value) == Bitmask.BIT_4.value);
+            write((b & Bitmask.BIT_3.value) == Bitmask.BIT_3.value);
+            write((b & Bitmask.BIT_2.value) == Bitmask.BIT_2.value);
+            write((b & Bitmask.BIT_1.value) == Bitmask.BIT_1.value);
+            write((b & Bitmask.BIT_0.value) == Bitmask.BIT_0.value);
+            return;
+        }
+        write(false);
         boolean negative = false;
         if (b < 0) {
             negative = true;
@@ -72,7 +88,7 @@ public class BitStore extends StoreBase {
 
 
     @Override
-    protected void _write(short s) throws NotImplementedException {
+    protected void _write(Short s) throws NotImplementedException {
         boolean negative = false;
         if (s < 0) {
             negative = true;
@@ -80,12 +96,12 @@ public class BitStore extends StoreBase {
             else
                 s = (short) -s;
         }
-        byte[] bytes = new byte[]{0, (byte) (s >> 8), (byte) s};
+        byte[] bytes = new byte[]{0, (byte) (s >> 8), (byte) (s >> 0)};
         writeValue(negative, bytes, SHORT);
     }
 
     @Override
-    protected void _write(int i) throws NotImplementedException {
+    protected void _write(Integer i) throws NotImplementedException {
         boolean negative = false;
         if (i < 0) {
             negative = true;
@@ -93,23 +109,23 @@ public class BitStore extends StoreBase {
             else
                 i = -i;
         }
-        byte[] bytes = new byte[]{0, (byte) (i >> 24), (byte) (i >> 16), (byte) (i >> 8), (byte) i};
+        byte[] bytes = new byte[]{0, (byte) (i >> 24), (byte) (i >> 16), (byte) (i >> 8), (byte) (i >> 0)};
         writeValue(negative, bytes, INTEGER);
     }
 
 
     @Override
-    protected void _write(long l) throws NotImplementedException {
+    protected void _write(Long l) throws NotImplementedException {
         boolean negative = false;
         if (l < 0) {
             negative = true;
-            if (l == Long.MIN_VALUE) l = 0;
+            if (l == Long.MIN_VALUE) l = 0L;
             else
                 l = -l;
         }
 
         byte[] bytes = new byte[]{0, (byte) (l >> 56), (byte) (l >> 48), (byte) (l >> 40),
-                (byte) (l >> 32), (byte) (l >> 24), (byte) (l >> 16), (byte) (l >> 8), (byte) l};
+                (byte) (l >> 32), (byte) (l >> 24), (byte) (l >> 16), (byte) (l >> 8), (byte) (l >> 0)};
 
         writeValue(negative, bytes, LONG);
     }
@@ -164,7 +180,45 @@ public class BitStore extends StoreBase {
 
     @Override
     protected void _write(String s) throws NotImplementedException {
-        throw new NotImplementedException("Write String not implemented from \"BitStore\"");
+
+        int length = s.length();
+        char[] cars = new char[length];
+        s.getChars(0, length, cars, 0);
+
+        int[] casAsInt = new int[length];
+
+        int index = 0;
+        for (char c : cars) {
+            casAsInt[index++] = (int) c;
+        }
+
+        //Check store as Byte, Short or Integer
+        boolean mustInt = false;
+        boolean mustShort = false;
+        byte additionalValue = Byte.MAX_VALUE;
+        for (int i : casAsInt) {
+            if (i > Byte.MAX_VALUE) mustShort = true;
+            if (i > Short.MAX_VALUE) mustInt = true;
+            if (i < additionalValue) additionalValue = (byte) i;
+        }
+
+        write(mustInt);
+        write(mustShort);
+        write(additionalValue);
+        write(length);
+
+        for (int i : casAsInt) {
+            if (mustInt) {
+                write(i - additionalValue);
+            } else if (mustShort) {
+                write((short) (i - additionalValue));
+            } else {
+                write((byte) (i - additionalValue));
+            }
+        }
+
+        System.out.print("");
+
     }
 
     @Override
@@ -177,6 +231,38 @@ public class BitStore extends StoreBase {
 
     @Override
     public byte readByte() throws NotImplementedException {
+        if (readBool()) {
+            //read full 8 bits
+
+            byte b = 0;
+            if (readBool()) b |= Bitmask.BIT_7.value;
+            else b &= ~Bitmask.BIT_7.value;
+
+            if (readBool()) b |= Bitmask.BIT_6.value;
+            else b &= ~Bitmask.BIT_6.value;
+
+            if (readBool()) b |= Bitmask.BIT_5.value;
+            else b &= ~Bitmask.BIT_5.value;
+
+            if (readBool()) b |= Bitmask.BIT_4.value;
+            else b &= ~Bitmask.BIT_4.value;
+
+            if (readBool()) b |= Bitmask.BIT_3.value;
+            else b &= ~Bitmask.BIT_3.value;
+
+            if (readBool()) b |= Bitmask.BIT_2.value;
+            else b &= ~Bitmask.BIT_2.value;
+
+            if (readBool()) b |= Bitmask.BIT_1.value;
+            else b &= ~Bitmask.BIT_1.value;
+
+            if (readBool()) b |= Bitmask.BIT_0.value;
+            else b &= ~Bitmask.BIT_0.value;
+
+            return b;
+        }
+
+
         return (byte) readValue(BYTE);
     }
 
@@ -230,7 +316,8 @@ public class BitStore extends StoreBase {
         else count &= ~Bitmask.BIT_0.value;
 
 
-        if (count == 0) count = (byte) numberType.bitCount;
+//        if (count == 0) count = (byte) numberType.bitCount;
+        if (count == 0) count = 1;
 
 
         int readByteArrayLength = ((count + numberType.pointerMove) / 8) + 2;
@@ -261,7 +348,26 @@ public class BitStore extends StoreBase {
 
     @Override
     public String readString() throws NotImplementedException {
-        throw new NotImplementedException("Read String not implemented from \"BitStore\"");
+        boolean mustInt = readBool();
+        boolean mustShort = readBool();
+        byte additionalValue = readByte();
+        int length = readInt();
+
+        char[] cars = new char[length];
+
+        for (int i = 0; i < length; i++) {
+            if (mustInt) {
+                cars[i] = (char) (readInt() + additionalValue);
+            } else if (mustShort) {
+                cars[i] = (char) (readShort() + additionalValue);
+            } else {
+                byte b = readByte();
+                cars[i] = (char) (b + additionalValue);
+            }
+        }
+        String ret = String.copyValueOf(cars);
+
+        return ret;
     }
 
     private Bitmask getBitmask() {

@@ -24,25 +24,25 @@ public class NormalStore extends StoreBase {
     }
 
     @Override
-    protected void _write(byte b) {
+    protected void _write(Byte b) {
         buffer[size++] = b;
     }
 
     @Override
-    protected void _write(short s) {
-        add(new byte[]{(byte) (s >> 8), (byte) s});
+    protected void _write(Short s) {
+        add(new byte[]{(byte) (s >> 8), (byte) (s >> 0)});
     }
 
     @Override
-    protected void _write(int i) {
-        add(new byte[]{(byte) (i >> 24), (byte) (i >> 16), (byte) (i >> 8), (byte) i});
+    protected void _write(Integer i) {
+        add(new byte[]{(byte) (i >> 24), (byte) (i >> 16), (byte) (i >> 8), (byte) (i >> 0)});
 
     }
 
     @Override
-    protected void _write(long l) {
+    protected void _write(Long l) {
         add(new byte[]{(byte) (l >> 56), (byte) (l >> 48), (byte) (l >> 40), (byte) (l >> 32),
-                (byte) (l >> 24), (byte) (l >> 16), (byte) (l >> 8), (byte) l});
+                (byte) (l >> 24), (byte) (l >> 16), (byte) (l >> 8), (byte) (l >> 0)});
     }
 
     @Override

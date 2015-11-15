@@ -29,13 +29,13 @@ public abstract class StoreBase {
 
     protected abstract void _write(boolean b) throws NotImplementedException;
 
-    protected abstract void _write(byte b) throws NotImplementedException;
+    protected abstract void _write(Byte b) throws NotImplementedException;
 
-    protected abstract void _write(short s) throws NotImplementedException;
+    protected abstract void _write(Short s) throws NotImplementedException;
 
-    protected abstract void _write(int i) throws NotImplementedException;
+    protected abstract void _write(Integer i) throws NotImplementedException;
 
-    protected abstract void _write(long l) throws NotImplementedException;
+    protected abstract void _write(Long l) throws NotImplementedException;
 
     protected abstract void _write(String s) throws NotImplementedException;
 
@@ -104,7 +104,7 @@ public abstract class StoreBase {
         return buffer;
     }
 
-    public  <T extends Serializable> ArrayList<T> readList(Class<T> tClass) throws NotImplementedException{
+    public <T extends Serializable> ArrayList<T> readList(Class<T> tClass) throws NotImplementedException {
         ArrayList<T> list = new ArrayList<T>();
         int size = readInt();
         for (int i = 0; i < size; i++) {
