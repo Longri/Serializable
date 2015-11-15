@@ -93,7 +93,7 @@ public class NormalStore extends StoreBase {
                 throw new IllegalStateException(e);
             }
         }
-        return null;
+        return "";
     }
 
     private void add(byte[] bytes) {
