@@ -99,7 +99,7 @@ public abstract class StoreBase {
         _write(s);
     }
 
-    public final byte[] getArray() throws NotImplementedException {
+    public byte[] getArray() throws NotImplementedException {
         trimToSize();
         return buffer;
     }
@@ -169,7 +169,7 @@ public abstract class StoreBase {
     }
 
 
-    private void trimToSize() {
+    protected void trimToSize() {
         byte[] array = this.createNewItems(size);
         System.arraycopy(buffer, 0, array, 0, size);
         buffer = array;

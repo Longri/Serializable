@@ -257,40 +257,6 @@ public class BitStore extends StoreBase {
         else b &= ~Bitmask.BIT_0.value;
 
         return b;
-
-//
-//        if (readBool()) {
-//            //read full 8 bits
-//
-//            byte b = 0;
-//            if (readBool()) b |= Bitmask.BIT_7.value;
-//            else b &= ~Bitmask.BIT_7.value;
-//
-//            if (readBool()) b |= Bitmask.BIT_6.value;
-//            else b &= ~Bitmask.BIT_6.value;
-//
-//            if (readBool()) b |= Bitmask.BIT_5.value;
-//            else b &= ~Bitmask.BIT_5.value;
-//
-//            if (readBool()) b |= Bitmask.BIT_4.value;
-//            else b &= ~Bitmask.BIT_4.value;
-//
-//            if (readBool()) b |= Bitmask.BIT_3.value;
-//            else b &= ~Bitmask.BIT_3.value;
-//
-//            if (readBool()) b |= Bitmask.BIT_2.value;
-//            else b &= ~Bitmask.BIT_2.value;
-//
-//            if (readBool()) b |= Bitmask.BIT_1.value;
-//            else b &= ~Bitmask.BIT_1.value;
-//
-//            if (readBool()) b |= Bitmask.BIT_0.value;
-//            else b &= ~Bitmask.BIT_0.value;
-//
-//            return b;
-//        }
-//
-//        return (byte) readValue(BYTE);
     }
 
     @Override
