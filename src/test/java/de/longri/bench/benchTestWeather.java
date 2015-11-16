@@ -1,11 +1,10 @@
 package de.longri.bench;
 
-import de.longri.serializable.*;
+import de.longri.serializable.Analyse;
+import de.longri.serializable.SerializableArrayList;
 import org.junit.Test;
 
 import java.util.Date;
-
-import static org.junit.Assert.assertEquals;
 
 
 /**
@@ -40,63 +39,10 @@ public class benchTestWeather {
         serializeList.add(wi2);
         serializeList.add(wi3);
 
-        NormalStore(serializeList);
-        BitStore(serializeList);
-        ZippedBitStore(serializeList);
-        ZippedNormalStore(serializeList);
+        Analyse analyse = new Analyse(serializeList);
+        analyse.printAnalyse();
 
     }
 
-    private void NormalStore(SerializableArrayList<WeatherInfo> serializeList) throws Exception {
-        NormalStore writer = new NormalStore();
-        serializeList.serialize(writer);
-        byte[] byteArray = writer.getArray();
-        SerializableArrayList<WeatherInfo> deserializeList = new SerializableArrayList<WeatherInfo>(WeatherInfo.class);
-        NormalStore reader = new NormalStore(byteArray);
-        deserializeList.deserialize(reader);
-        assertEquals(wi1, deserializeList.get(0));
-        assertEquals(wi2, deserializeList.get(1));
-        assertEquals(wi3, deserializeList.get(2));
-        System.out.println("NormalStore:" + byteArray.length + " bytes");
-    }
-
-    private void BitStore(SerializableArrayList<WeatherInfo> serializeList) throws Exception {
-        BitStore writer = new BitStore();
-        serializeList.serialize(writer);
-        byte[] byteArray = writer.getArray();
-        SerializableArrayList<WeatherInfo> deserializeList = new SerializableArrayList<WeatherInfo>(WeatherInfo.class);
-        BitStore reader = new BitStore(byteArray);
-        deserializeList.deserialize(reader);
-        assertEquals(wi1, deserializeList.get(0));
-        assertEquals(wi2, deserializeList.get(1));
-        assertEquals(wi3, deserializeList.get(2));
-        System.out.println("BitStore:" + byteArray.length + " bytes");
-    }
-
-    private void ZippedBitStore(SerializableArrayList<WeatherInfo> serializeList) throws Exception {
-        ZippedBitStore writer = new ZippedBitStore();
-        serializeList.serialize(writer);
-        byte[] byteArray = writer.getArray();
-        SerializableArrayList<WeatherInfo> deserializeList = new SerializableArrayList<WeatherInfo>(WeatherInfo.class);
-        ZippedBitStore reader = new ZippedBitStore(byteArray);
-        deserializeList.deserialize(reader);
-        assertEquals(wi1, deserializeList.get(0));
-        assertEquals(wi2, deserializeList.get(1));
-        assertEquals(wi3, deserializeList.get(2));
-        System.out.println("ZippedBitStore:" + byteArray.length + " bytes");
-    }
-
-    private void ZippedNormalStore(SerializableArrayList<WeatherInfo> serializeList) throws Exception {
-        ZippedNormalStore writer = new ZippedNormalStore();
-        serializeList.serialize(writer);
-        byte[] byteArray = writer.getArray();
-        SerializableArrayList<WeatherInfo> deserializeList = new SerializableArrayList<WeatherInfo>(WeatherInfo.class);
-        ZippedNormalStore reader = new ZippedNormalStore(byteArray);
-        deserializeList.deserialize(reader);
-        assertEquals(wi1, deserializeList.get(0));
-        assertEquals(wi2, deserializeList.get(1));
-        assertEquals(wi3, deserializeList.get(2));
-        System.out.println("ZippedNormalStore:" + byteArray.length + " bytes");
-    }
 
 }
