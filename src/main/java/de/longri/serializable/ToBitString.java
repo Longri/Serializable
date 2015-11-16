@@ -14,7 +14,7 @@ public class ToBitString {
 
     ToBitString(int[] val) {
 
-        ArrayList<Byte> intByteArray = new ArrayList<>();
+        ArrayList<Byte> intByteArray = new ArrayList<Byte>();
 
         for (int i : val) {
             intByteArray.add((byte) (i >> 24));
