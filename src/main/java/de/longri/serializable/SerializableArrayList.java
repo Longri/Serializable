@@ -43,7 +43,7 @@ public class SerializableArrayList<T extends Serializable> implements Serializab
     }
 
     public T get(int index) {
-        if (index < list.size()) return null;
+        if (list.size() < index) return null;
         return list.get(index);
     }
 
