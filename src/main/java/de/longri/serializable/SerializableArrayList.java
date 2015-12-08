@@ -47,4 +47,8 @@ public class SerializableArrayList<T extends Serializable> implements Serializab
         return list.get(index);
     }
 
+    public int size() {
+        return list.size();
+    }
+
 }
