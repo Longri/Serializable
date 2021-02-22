@@ -1,12 +1,14 @@
 package de.longri.serializable;
 
-import junit.framework.TestCase;
-import org.junit.Test;
+
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Created by Hoepfner on 11.11.2015.
  */
-public class ByteArrayTest extends TestCase {
+public class ByteArrayTest  {
 
 
     @Test

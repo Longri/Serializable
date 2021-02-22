@@ -2,7 +2,8 @@ package de.longri.bench;
 
 import de.longri.serializable.Analyse;
 import de.longri.serializable.SerializableArrayList;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
 
 import java.util.Date;
 

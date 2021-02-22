@@ -1,8 +1,9 @@
 package de.longri.serializable;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
+
 
 /**
  * Created by Longri on 03.11.15.
