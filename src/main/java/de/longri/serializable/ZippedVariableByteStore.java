@@ -2,59 +2,29 @@ package de.longri.serializable;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.zip.DataFormatException;
 import java.util.zip.Deflater;
 import java.util.zip.Inflater;
 
 /**
- * Created by Longri on 15.11.15.
+ * Created by Longri on 10.12.2023
  */
-public class BitStoreZippedString extends BitStore {
+public class ZippedVariableByteStore extends VariableByteStore {
 
 
-    public BitStoreZippedString(byte[] array) {
-        super(array);
+    public ZippedVariableByteStore(byte[] array) {
+        super(decompress(array));
     }
 
-    public BitStoreZippedString() {
+    public ZippedVariableByteStore() {
         super();
     }
 
-    public BitStoreZippedString(String base64) {
+    public ZippedVariableByteStore(String base64) {
         super(base64);
     }
 
-    @Override
-    protected void _write(String s) throws NotImplementedException {
-
-        byte[] bytes = compress(s.getBytes(UTF8_CHARSET));
-        _write(bytes.length);
-
-        for (byte b : bytes) {
-            write(b);
-        }
-    }
-
-    @Override
-    public String readString() throws NotImplementedException {
-
-        int length = readInt();
-
-        byte[] bytes = new byte[length];
-
-        for (int i = 0; i < length; i++) {
-            bytes[i] = readByte();
-        }
-
-        byte[] stringBytes = decompress(bytes);
-
-        return new String(stringBytes, 0, stringBytes.length, StandardCharsets.UTF_8);
-
-
-    }
-
-    public static byte[] compress(byte[] data) {
+    public static byte[] compress(byte[] data) throws IOException {
         Deflater deflater = new Deflater();
         deflater.setInput(data);
 
@@ -66,11 +36,7 @@ public class BitStoreZippedString extends BitStore {
             int count = deflater.deflate(buffer); // returns the generated code... index
             outputStream.write(buffer, 0, count);
         }
-        try {
-            outputStream.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        outputStream.close();
         byte[] output = outputStream.toByteArray();
 
         deflater.end();
@@ -102,5 +68,14 @@ public class BitStoreZippedString extends BitStore {
 
         inflater.end();
         return output;
+    }
+
+    public byte[] getArray() throws NotImplementedException {
+        trimToSize();
+        try {
+            return compress(buffer);
+        } catch (IOException e) {
+            return new byte[0];
+        }
     }
 }

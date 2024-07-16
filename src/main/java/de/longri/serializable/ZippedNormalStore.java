@@ -20,6 +20,10 @@ public class ZippedNormalStore extends NormalStore {
         super();
     }
 
+    public ZippedNormalStore(String base64) {
+        super(base64);
+    }
+
     public static byte[] compress(byte[] data) throws IOException {
         Deflater deflater = new Deflater();
         deflater.setInput(data);

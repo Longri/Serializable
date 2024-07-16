@@ -24,11 +24,16 @@ public class BitStore extends StoreBase {
     private class Pointer {
         int _Byte = 0;
         int _Bit = 0;
+
+        @Override
+        public String toString() {
+            return "" + _Byte + " | " + _Bit;
+        }
     }
 
-    private Pointer pointer = new Pointer();
+    private final Pointer pointer = new Pointer();
 
-    private void movePointer(int i) {
+    protected void movePointer(int i) {
         if (pointer._Bit + i > 7) {
             long allBit = pointer._Byte * 8 + pointer._Bit + i;
             pointer._Byte = (int) (allBit / 8);
@@ -45,6 +50,10 @@ public class BitStore extends StoreBase {
 
     public BitStore() {
         super();
+    }
+
+    public BitStore(String base64) {
+        super(base64);
     }
 
     @Override
@@ -170,6 +179,13 @@ public class BitStore extends StoreBase {
 
     @Override
     protected void _write(String s) throws NotImplementedException {
+
+        if (s == null) {
+            write(true); // is short
+            write(true); // is int
+            // both are null string
+            return;
+        }
 
         int length = s.length();
         char[] cars = new char[length];
@@ -343,6 +359,13 @@ public class BitStore extends StoreBase {
     public String readString() throws NotImplementedException {
         boolean mustInt = readBool();
         boolean mustShort = readBool();
+
+        if (mustInt && mustShort) {
+            // both flags are null String
+            return null;
+        }
+
+
         int length = readInt();
 
         char[] cars = new char[length];

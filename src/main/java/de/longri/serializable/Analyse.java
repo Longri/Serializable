@@ -13,11 +13,20 @@ public class Analyse {
 
 
     public void printAnalyse() {
-        System.out.println("NormalStore          = " + getLength(this.seri, new NormalStore()) + " bytes");
-        System.out.println("BitStore             = " + getLength(this.seri, new BitStore()) + " bytes");
-        System.out.println("ZippedNormalStore    = " + getLength(this.seri, new ZippedNormalStore()) + " bytes");
-        System.out.println("ZippedBitStore       = " + getLength(this.seri, new ZippedBitStore()) + " bytes");
-        System.out.println("BitStoreZippedString = " + getLength(this.seri, new BitStoreZippedString()) + " bytes");
+        printTime("NormalStore             = ", this.seri, new NormalStore());
+        printTime("VariableByteStore       = ", this.seri, new VariableByteStore());
+        printTime("BitStore                = ", this.seri, new BitStore());
+        printTime("ZippedNormalStore       = ", this.seri, new ZippedNormalStore());
+        printTime("ZippedBitStore          = ", this.seri, new ZippedBitStore());
+        printTime("BitStoreZippedString    = ", this.seri, new BitStoreZippedString());
+        printTime("ZippedVariableByteStore = ", this.seri, new ZippedVariableByteStore());
+    }
+
+    public void printTime(String name, Serializable seri, StoreBase store) {
+        long start = System.currentTimeMillis();
+        String res = name + Integer.toString(getLength(seri, store)) + " bytes";
+        long timeMillis = System.currentTimeMillis() - start;
+        System.out.println(res + " at " + timeMillis + " ms");
     }
 
     private int getLength(Serializable seri, StoreBase store) {

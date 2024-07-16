@@ -1,16 +1,23 @@
 package de.longri.serializable;
 
+import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Base64;
 
 /**
  * Created by Longri on 05.11.15.
  */
 public abstract class StoreBase {
     protected static final String CHARSET_UTF8 = "UTF-8";
-    protected static final Charset UTF8_CHARSET = Charset.forName("utf8");
-    private static final int INITIAL_SIZE = 4; //20;
+    protected static final Charset UTF8_CHARSET = StandardCharsets.UTF_8;
+    private static final int INITIAL_SIZE = 30000; //20;
 
 
     protected byte[] buffer;
@@ -24,8 +31,21 @@ public abstract class StoreBase {
         size = values.length - 1;
         buffer = values;
     }
+    /*---------- String constructor and getter based on Base64 --------------*/
 
-/*---------- abstract method's --------------*/
+    public StoreBase(String base64) {
+        this(Base64.getDecoder().decode(base64));
+    }
+
+    public String getBase64String() {
+        try {
+            return Base64.getEncoder().encodeToString(getArray());
+        } catch (NotImplementedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /*---------- abstract method's --------------*/
 
     protected abstract void _write(boolean b) throws NotImplementedException;
 
@@ -54,7 +74,7 @@ public abstract class StoreBase {
 
 
 
-/*---------- public method's --------------*/
+    /*---------- public method's --------------*/
 
     public final int size() {
         return size;
@@ -95,8 +115,53 @@ public abstract class StoreBase {
     }
 
     public final void write(String s) throws NotImplementedException {
-        ensureCapacity(s.length() * 2);
-        _write(s);
+        if (s == null) {
+            ensureCapacity(2);
+            _write(s);
+        } else {
+            ensureCapacity(s.length() * 2);
+            _write(s);
+        }
+
+
+    }
+
+    public ZoneId berlinZone = ZoneId.of("Europe/Berlin");
+
+    public final void write(LocalDate localDate) throws NotImplementedException {
+        if (localDate == null) {
+            long l = -1L;
+            write(l);
+        } else {
+            long unixTimestamp = localDate.atStartOfDay(berlinZone).toEpochSecond() * 1000;
+            write(unixTimestamp);
+        }
+    }
+
+    public LocalDate readLocalDate() throws NotImplementedException {
+        long unixTimestamp = readLong();
+        if (unixTimestamp == -1L) return null;
+        Instant instant = Instant.ofEpochMilli(unixTimestamp);
+        return instant.atZone(berlinZone).toLocalDate();
+    }
+
+
+    public final void write(LocalDateTime localDateTime) throws NotImplementedException {
+        long unixTimestamp;
+        if (localDateTime == null) {
+            unixTimestamp = -1;
+        } else {
+            unixTimestamp = localDateTime.atZone(berlinZone).toEpochSecond() * 1000;
+        }
+        write(unixTimestamp);
+
+    }
+
+    public final LocalDateTime readLocalDateTime() throws NotImplementedException {
+        long unixTimestamp = readLong();
+        if (unixTimestamp == -1) return null;
+        Instant instant = Instant.ofEpochMilli(unixTimestamp);
+        return instant.atZone(berlinZone).toLocalDateTime();
     }
 
     public byte[] getArray() throws NotImplementedException {
@@ -110,22 +175,20 @@ public abstract class StoreBase {
         for (int i = 0; i < size; i++) {
 
             try {
-                T t = tClass.newInstance();
+                T t = tClass.getDeclaredConstructor().newInstance();
                 t.deserialize(this);
                 list.add(t);
-            } catch (InstantiationException e) {
+            } catch (InstantiationException | IllegalAccessException | NotImplementedException e) {
                 e.printStackTrace();
-            } catch (IllegalAccessException e) {
-                e.printStackTrace();
-            } catch (NotImplementedException e) {
-                e.printStackTrace();
+            } catch (InvocationTargetException | NoSuchMethodException e) {
+                throw new RuntimeException(e);
             }
 
         }
         return list;
     }
 
-/*---------- method's for handle byte array --------------*/
+    /*---------- method's for handle byte array --------------*/
 
     private byte[] createNewItems(int size) {
         if (size <= 0) return null;
@@ -135,29 +198,25 @@ public abstract class StoreBase {
     /**
      * Increases the size of the backing array to acommodate the specified number of additional buffer. Useful before adding many buffer to
      * avoid multiple backing array resizes.
-     *
-     * @return {@link #buffer}
      */
-    private byte[] ensureCapacity(int additionalCapacity) {
+    private void ensureCapacity(int additionalCapacity) {
         int sizeNeeded = size + additionalCapacity;
         if (sizeNeeded > getItemLength()) resize(Math.max(INITIAL_SIZE, sizeNeeded));
-        return buffer;
     }
 
-    private byte[] resize(int newSize) {
+    private void resize(int newSize) {
         if (newSize < INITIAL_SIZE) newSize = INITIAL_SIZE;
         if (this.buffer == null) {
             this.buffer = createNewItems(newSize);
         } else {
             this.buffer = Arrays.copyOf(this.buffer, newSize);
         }
-        return this.buffer;
     }
 
     /**
      * Reduces the size of the array to the specified size. If the array is already smaller than the specified size, no action is taken.
      */
-    private void truncate(int newSize) {
+    public void truncate(int newSize) {
         if (size > newSize) {
             size = newSize;
         }
@@ -171,6 +230,7 @@ public abstract class StoreBase {
 
     protected void trimToSize() {
         byte[] array = this.createNewItems(size);
+        if (array == null) return;
         System.arraycopy(buffer, 0, array, 0, size);
         buffer = array;
     }

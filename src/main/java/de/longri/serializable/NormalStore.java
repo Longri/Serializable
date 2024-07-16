@@ -16,6 +16,10 @@ public class NormalStore extends StoreBase {
         super(values);
     }
 
+    public NormalStore(String base64) {
+        super(base64);
+    }
+
     int readIndex = 0;
 
     @Override
@@ -96,7 +100,7 @@ public class NormalStore extends StoreBase {
         return "";
     }
 
-    private void add(byte[] bytes) {
+    protected void add(byte[] bytes) {
         for (byte b : bytes) {
             _write(b);
         }
