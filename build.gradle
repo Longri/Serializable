@@ -3,14 +3,17 @@ plugins {
     id 'application'
     id 'org.openjfx.javafxplugin' version '0.1.0'
     id 'maven-publish'
-    id "com.github.ben-manes.versions" version "0.51.0"
+    id "com.github.ben-manes.versions" version "0.52.0"
 }
 
 group 'de.longri'
-version '5.0.0'
+version '5.0.1'
 
 
 compileJava.options.encoding = 'UTF-8'
+ext {
+    junitVersion = '5.11.4'
+}
 
 repositories {
     mavenCentral()
@@ -23,12 +26,29 @@ repositories {
 
 dependencies {
 
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.0'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+    testImplementation("org.junit.jupiter:junit-jupiter-api:${junitVersion}")
+    testImplementation("org.junit.jupiter:junit-jupiter:${junitVersion}")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${junitVersion}")
 }
 
 test {
     useJUnitPlatform()
+}
+
+dependencyUpdates {
+    resolutionStrategy {
+        componentSelection {
+            all {
+                // Schließt alle Abhängigkeiten aus, die mit 'org.openjfx' (JavaFX) beginnen
+                if (candidate.group == 'org.openjfx') {
+                    reject('JavaFX dependencies are excluded')
+                }
+                if (candidate.group == 'org.junit.jupiter') {
+                    reject('JUnit dependencies are excluded')
+                }
+            }
+        }
+    }
 }
 
 if (file('gradle.properties.local').exists()) {
