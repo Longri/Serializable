@@ -249,13 +249,13 @@ public class NormalStoreTest {
         obj.value5 = "";
         obj.value6 = "Java is a general-purpose computer programming language that is concurrent, class-based, object-oriented, and specifically designed to have as few implementation dependencies as possible.";
         obj.value7 = "It is intended to let application developers \"write once, run anywhere\" (WORA), meaning that compiled Java code can run on all platforms that support Java without the need for recompilation.";
-        obj.value8 = "";
+        obj.value8 = "TQm";
         obj.value9 = "";
         obj.value10 = "Serialize";
 
         TestObjectString obj2 = new TestObjectString();
 
-        NormalStore writer = new NormalStore();
+        NormalStore writer = new NormalStore(10);
         obj.serialize(writer);
         obj2.deserialize(new NormalStore(writer.getArray()));
 

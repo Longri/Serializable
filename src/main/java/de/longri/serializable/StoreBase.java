@@ -23,6 +23,10 @@ public abstract class StoreBase {
     protected byte[] buffer;
     protected int size;
 
+    public StoreBase(int initialSize) {
+        buffer = this.createNewItems(initialSize);
+    }
+
     public StoreBase() {
         buffer = this.createNewItems(INITIAL_SIZE);
     }
@@ -119,7 +123,7 @@ public abstract class StoreBase {
             ensureCapacity(2);
             _write(s);
         } else {
-            ensureCapacity(s.length() * 2);
+            ensureCapacity((s.length() * 2) + 4); //double length + 4byte integer as size
             _write(s);
         }
 

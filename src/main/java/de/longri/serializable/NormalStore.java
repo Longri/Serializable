@@ -8,6 +8,10 @@ import java.io.UnsupportedEncodingException;
 public class NormalStore extends StoreBase {
 
 
+    public NormalStore(int initialSize) {
+        super(initialSize);
+    }
+
     public NormalStore() {
         super();
     }

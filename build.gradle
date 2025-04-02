@@ -7,7 +7,7 @@ plugins {
 }
 
 group 'de.longri'
-version '5.0.1'
+version '5.0.2'
 
 
 compileJava.options.encoding = 'UTF-8'
